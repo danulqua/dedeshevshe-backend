@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
+  const port = process.env.PORT || 3000;
+
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('/api');
@@ -15,7 +17,9 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(3000);
+  await app.listen(port);
+
+  console.log(`App is running on port ${port}`);
 }
 
 bootstrap();
