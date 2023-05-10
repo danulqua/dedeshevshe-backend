@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  grocify-db:
+    container_name: grocify-db
+    image: postgres:13
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: grocify_db
