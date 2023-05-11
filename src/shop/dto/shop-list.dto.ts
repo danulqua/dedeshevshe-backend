@@ -1,6 +1,6 @@
 import { Shop } from '@prisma/client';
 
-export class ShopListDto {
+export class ShopListDTO {
   count: number;
   items: Shop[];
 

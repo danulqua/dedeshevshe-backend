@@ -4,8 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateShopDto } from 'src/shop/dto/create-shop.dto';
-import { UpdateShopDto } from 'src/shop/dto/update-shop.dto';
+import { CreateShopDTO } from 'src/shop/dto/create-shop.dto';
+import { UpdateShopDTO } from 'src/shop/dto/update-shop.dto';
 
 @Injectable()
 export class ShopService {
@@ -26,7 +26,7 @@ export class ShopService {
     return shop;
   }
 
-  async create(shopDto: CreateShopDto) {
+  async create(shopDto: CreateShopDTO) {
     const { title } = shopDto;
 
     const shopFromDB = await this.prismaService.shop.findUnique({
@@ -47,7 +47,7 @@ export class ShopService {
     return shop;
   }
 
-  async update(shopId: number, shopDto: UpdateShopDto) {
+  async update(shopId: number, shopDto: UpdateShopDTO) {
     const { title } = shopDto;
 
     const shopFromDB = await this.prismaService.shop.findUnique({
@@ -58,14 +58,14 @@ export class ShopService {
       throw new NotFoundException('Shop with this id does not exist');
     }
 
-    const shop = await this.prismaService.shop.update({
+    const updatedShop = await this.prismaService.shop.update({
       where: { id: shopId },
       data: {
         title,
       },
     });
 
-    return shop;
+    return updatedShop;
   }
 
   async delete(shopId: number) {
@@ -77,10 +77,10 @@ export class ShopService {
       throw new NotFoundException('Shop with this id does not exist');
     }
 
-    const shop = await this.prismaService.shop.delete({
+    const deletedShop = await this.prismaService.shop.delete({
       where: { id: shopId },
     });
 
-    return shop;
+    return deletedShop;
   }
 }

@@ -8,9 +8,9 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { CreateShopDto } from 'src/shop/dto/create-shop.dto';
-import { ShopListDto } from 'src/shop/dto/shop-list.dto';
-import { UpdateShopDto } from 'src/shop/dto/update-shop.dto';
+import { CreateShopDTO } from 'src/shop/dto/create-shop.dto';
+import { ShopListDTO } from 'src/shop/dto/shop-list.dto';
+import { UpdateShopDTO } from 'src/shop/dto/update-shop.dto';
 import { ShopService } from 'src/shop/shop.service';
 
 @Controller('shop')
@@ -20,7 +20,7 @@ export class ShopController {
   @Get('all')
   async find() {
     const shops = await this.shopService.find();
-    return new ShopListDto(shops);
+    return new ShopListDTO(shops);
   }
 
   @Get(':shopId')
@@ -29,14 +29,14 @@ export class ShopController {
   }
 
   @Post()
-  create(@Body() shopDto: CreateShopDto) {
+  create(@Body() shopDto: CreateShopDTO) {
     return this.shopService.create(shopDto);
   }
 
   @Patch(':shopId')
   update(
     @Param('shopId', ParseIntPipe) shopId: number,
-    @Body() shopDto: UpdateShopDto,
+    @Body() shopDto: UpdateShopDTO,
   ) {
     return this.shopService.update(shopId, shopDto);
   }
