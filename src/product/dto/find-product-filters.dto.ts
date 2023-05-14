@@ -1,7 +1,7 @@
-import { Product } from '@prisma/client';
+import { Product, ProductStatus } from '@prisma/client';
 import {
   IsBoolean,
-  IsNotEmpty,
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -41,6 +41,10 @@ export class FindProductFiltersDTO {
   @IsOptional()
   @IsBoolean()
   discountsOnly?: boolean;
+
+  @IsOptional()
+  @IsEnum(ProductStatus)
+  status?: ProductStatus;
 
   @IsOptional()
   @IsNumber()

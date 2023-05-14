@@ -26,6 +26,7 @@ export class ProductService {
       shopId,
       maxPrice,
       discountsOnly,
+      status,
       limit,
       page = 1,
       sortBy,
@@ -38,6 +39,7 @@ export class ProductService {
         shopId: shopId ?? undefined,
         price: maxPrice ? { lte: maxPrice } : undefined,
         discount: discountsOnly ? { gt: 0 } : undefined,
+        status: status ?? undefined,
       },
       take: limit,
       skip: limit ? limit * (page - 1) : undefined,
@@ -98,12 +100,12 @@ export class ProductService {
         return { products: paginatedProducts, totalCount, totalPages };
       } else {
         // If shop is internal - we have to search internally
-        const result = await this.find(filtersDTO);
+        const result = await this.find({ ...filtersDTO, status: 'ACTIVE' });
         return result;
       }
     } else {
       // If shopId is not provided - we have to search both internally and externally
-      const internalPromise = this.find(filtersDTO);
+      const internalPromise = this.find({ ...filtersDTO, status: 'ACTIVE' });
       const externalPromise = this.zakazService.getProducts({
         query: title,
         filters: { maxPrice, discountsOnly },
