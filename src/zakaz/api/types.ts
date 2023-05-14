@@ -3,8 +3,13 @@ export interface Shop {
   title: string;
 }
 
-export interface SearchProductsFilters {
+export interface SearchProductsByShopFilters {
   shopId: string;
+  maxPrice: number;
+  discountsOnly: boolean;
+}
+
+export interface SearchProductsFilters {
   maxPrice: number;
   discountsOnly: boolean;
 }

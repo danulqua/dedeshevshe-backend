@@ -4,15 +4,21 @@ import { capitalize } from 'src/utils';
 import {
   ProductResponse,
   SearchProductsFilters,
+  SearchProductsByShopFilters,
   SearchProductsResponse,
   Shop,
 } from 'src/zakaz/api/types';
-import { Product } from 'src/zakaz/types';
+import { ProductZakaz } from 'src/zakaz/types';
 import { ShopService } from 'src/shop/shop.service';
 
 interface SearchProductsParams {
   query: string;
   filters: SearchProductsFilters;
+}
+
+interface SearchProductsByShopParams {
+  query: string;
+  filters: SearchProductsByShopFilters;
 }
 
 @Injectable()
@@ -44,15 +50,17 @@ export class ZakazService {
 
   async getProducts({ query, filters }: SearchProductsParams) {
     try {
-      let resultsArray = [];
+      let resultsArray: ProductZakaz[] = [];
 
       // Get shops
-      const { shops } = await this.shopService.find();
+      const { shops } = await this.shopService.find({ source: 'external' });
 
       // Create promise array where every promise is going to make request to the specific shop
       const promises = shops.map((shop) =>
-        zakazApi.get(
-          `stores/${shop.id}/products/search?q=${encodeURIComponent(query)}`,
+        zakazApi.get<SearchProductsResponse>(
+          `stores/${shop.externalId}/products/search?q=${encodeURIComponent(
+            query,
+          )}`,
         ),
       );
 
@@ -83,13 +91,15 @@ export class ZakazService {
     }
   }
 
-  async getProductsByShop({ query, filters }: SearchProductsParams) {
+  async getProductsByShop({ query, filters }: SearchProductsByShopParams) {
     try {
       // Get shops
-      const shops = await this.getShops();
+      const { shops } = await this.shopService.find({ source: 'external' });
 
       // Find shop by query
-      const shopTitle = shops.find((item) => item.id === filters.shopId).title;
+      const shopTitle = shops.find(
+        (item) => item.externalId === filters.shopId,
+      ).title;
 
       // Make request to the specific shop
       const response = await zakazApi.get<SearchProductsResponse>(
@@ -117,7 +127,7 @@ export class ZakazService {
   private transformProduct(
     product: ProductResponse,
     shopTitle: string,
-  ): Product {
+  ): ProductZakaz {
     return {
       ean: product.ean,
       title: product.title,
@@ -139,11 +149,11 @@ export class ZakazService {
 
   // Filter array with user filters
   private filterResults(
-    data: Product[],
+    data: ProductZakaz[],
     {
       maxPrice,
       discountsOnly,
-    }: Pick<SearchProductsFilters, 'maxPrice' | 'discountsOnly'>,
+    }: Pick<SearchProductsByShopFilters, 'maxPrice' | 'discountsOnly'>,
   ) {
     let filteredData = data;
 

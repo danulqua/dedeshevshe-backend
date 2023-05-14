@@ -1,4 +1,4 @@
-export interface Product {
+export interface ProductZakaz {
   ean: string;
   title: string;
   shop: string;
@@ -6,12 +6,12 @@ export interface Product {
   imageUrl: string;
   description: string | null;
   price: number;
-  discount: Discount | null;
+  discount: DiscountZakaz | null;
   volume: number | null;
   weight: number | null;
 }
 
-export interface Discount {
+export interface DiscountZakaz {
   value: number;
   oldPrice: number;
 }

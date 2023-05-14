@@ -14,14 +14,7 @@ export class ShopService {
   constructor(private prismaService: PrismaService) {}
 
   async find(filtersDTO: FindShopFiltersDTO = {}) {
-    const {
-      title,
-      source = undefined,
-      limit = undefined,
-      page = 1,
-      sortBy,
-      order,
-    } = filtersDTO;
+    const { title, source, limit, page = 1, sortBy, order } = filtersDTO;
 
     const query: Prisma.ShopFindManyArgs = {
       where: {
@@ -47,8 +40,7 @@ export class ShopService {
       this.prismaService.shop.count({ where: query.where }),
     ]);
 
-    const totalPages =
-      totalCount !== 0 ? Math.ceil(totalCount / limit) || 1 : 0;
+    const totalPages = totalCount ? Math.ceil(totalCount / limit) || 1 : 0;
 
     return { shops, totalCount, totalPages };
   }

@@ -7,8 +7,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CreateProductDTO } from 'src/product/dto/create-product.dto';
+import { FindProductFiltersDTO } from 'src/product/dto/find-product-filters.dto';
 import { ProductListDTO } from 'src/product/dto/product-list.dto';
 import { UpdateProductDTO } from 'src/product/dto/update-product.dto';
 import { ProductService } from 'src/product/product.service';
@@ -18,9 +20,20 @@ export class ProductController {
   constructor(private productService: ProductService) {}
 
   @Get('all')
-  async find() {
-    const products = await this.productService.find();
-    return new ProductListDTO(products);
+  async find(@Query() filtersDTO: FindProductFiltersDTO) {
+    const { products, totalCount, totalPages } = await this.productService.find(
+      filtersDTO,
+    );
+
+    return new ProductListDTO({ items: products, totalCount, totalPages });
+  }
+
+  @Get('global')
+  async findGlobally(@Query() filtersDTO: FindProductFiltersDTO) {
+    const { products, totalCount, totalPages } =
+      await this.productService.findGlobally(filtersDTO);
+
+    return new ProductListDTO({ items: products, totalCount, totalPages });
   }
 
   @Get(':productId')
