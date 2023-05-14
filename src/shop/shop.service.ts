@@ -16,7 +16,7 @@ export class ShopService {
   async find(filtersDTO: FindShopFiltersDTO = {}) {
     const {
       title,
-      isExternal,
+      source = undefined,
       limit = undefined,
       page = 1,
       sortBy,
@@ -26,7 +26,12 @@ export class ShopService {
     const query: Prisma.ShopFindManyArgs = {
       where: {
         title: title ? { contains: title, mode: 'insensitive' } : undefined,
-        isExternal: isExternal ?? undefined,
+        isExternal:
+          source === 'external'
+            ? true
+            : source === 'internal'
+            ? false
+            : undefined,
       },
       take: limit,
       skip: limit,
