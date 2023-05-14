@@ -3,17 +3,49 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateShopDTO } from 'src/shop/dto/create-shop.dto';
+import { FindShopFiltersDTO } from 'src/shop/dto/find-shop-filters.dto';
 import { UpdateShopDTO } from 'src/shop/dto/update-shop.dto';
 
 @Injectable()
 export class ShopService {
   constructor(private prismaService: PrismaService) {}
 
-  async find() {
-    const shops = await this.prismaService.shop.findMany();
-    return shops;
+  async find(filtersDTO: FindShopFiltersDTO = {}) {
+    const {
+      title,
+      isExternal,
+      limit = undefined,
+      page = 1,
+      sortBy,
+      order,
+    } = filtersDTO;
+
+    const query: Prisma.ShopFindManyArgs = {
+      where: {
+        title: title ? { contains: title, mode: 'insensitive' } : undefined,
+        isExternal: isExternal ?? undefined,
+      },
+      take: limit,
+      skip: limit,
+      orderBy: sortBy ? { [sortBy]: order ?? 'asc' } : undefined,
+    };
+
+    if (page && limit) {
+      query.skip = (page - 1) * limit;
+    }
+
+    const [shops, totalCount] = await Promise.all([
+      this.prismaService.shop.findMany(query),
+      this.prismaService.shop.count({ where: query.where }),
+    ]);
+
+    const totalPages =
+      totalCount !== 0 ? Math.ceil(totalCount / limit) || 1 : 0;
+
+    return { shops, totalCount, totalPages };
   }
 
   async findOne(shopId: number) {

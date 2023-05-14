@@ -1,11 +1,19 @@
 import { Shop } from '@prisma/client';
 
+interface ShopListParams {
+  totalCount: number;
+  totalPages: number;
+  items: Shop[];
+}
+
 export class ShopListDTO {
-  count: number;
+  totalCount: number;
+  totalPages: number;
   items: Shop[];
 
-  constructor(items: Shop[]) {
-    this.count = items.length;
+  constructor({ items, totalCount, totalPages }: ShopListParams) {
+    this.totalCount = totalCount;
+    this.totalPages = totalPages;
     this.items = items;
   }
 }

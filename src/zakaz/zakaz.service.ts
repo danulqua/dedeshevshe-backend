@@ -8,6 +8,7 @@ import {
   Shop,
 } from 'src/zakaz/api/types';
 import { Product } from 'src/zakaz/types';
+import { ShopService } from 'src/shop/shop.service';
 
 interface SearchProductsParams {
   query: string;
@@ -16,6 +17,8 @@ interface SearchProductsParams {
 
 @Injectable()
 export class ZakazService {
+  constructor(private shopService: ShopService) {}
+
   async getShops() {
     try {
       const shops: Shop[] = [];
@@ -42,8 +45,9 @@ export class ZakazService {
   async getProducts({ query, filters }: SearchProductsParams) {
     try {
       let resultsArray = [];
+
       // Get shops
-      const shops = await this.getShops();
+      const { shops } = await this.shopService.find();
 
       // Create promise array where every promise is going to make request to the specific shop
       const promises = shops.map((shop) =>

@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Shop } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ZakazService } from 'src/zakaz/zakaz.service';
 
 @Injectable()
-export class SchedulerService {
+export class SchedulerService implements OnApplicationBootstrap {
   constructor(
     private prismaService: PrismaService,
     private zakazService: ZakazService,
@@ -14,7 +14,7 @@ export class SchedulerService {
   private readonly logger = new Logger(SchedulerService.name);
 
   // FIXME: increase interval to 1 week
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async fetchExternalShops() {
     const deletedExternalShopsFromDB = await this.prismaService.shop.deleteMany(
       {
@@ -42,5 +42,9 @@ export class SchedulerService {
     });
 
     this.logger.debug('External shops were fetched and saved to DB');
+  }
+
+  async onApplicationBootstrap() {
+    await this.fetchExternalShops();
   }
 }
