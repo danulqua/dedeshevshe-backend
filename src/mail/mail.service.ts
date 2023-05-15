@@ -1,17 +1,22 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
 
 @Injectable()
 export class MailService {
-  constructor(private mailerService: MailerService) {}
+  constructor(
+    private mailerService: MailerService,
+    private config: ConfigService,
+  ) {}
 
   async sendResetPasswordLink(user: User, token: string) {
-    const url = `http://localhost:5000/auth/resetPassword?token=${token}`;
+    const clientBaseUrl = this.config.get('CLIENT_BASE_URL');
+    const url = `${clientBaseUrl}/auth/resetPassword?token=${token}`;
 
     await this.mailerService.sendMail({
       to: user.email,
-      subject: '[Grocify] Reset password confirmation',
+      subject: '[Grocify] Підтвердження скидання паролю',
       template: 'reset-password',
       context: {
         name: user.name,
