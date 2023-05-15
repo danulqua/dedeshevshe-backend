@@ -37,4 +37,13 @@ export class SchedulerService {
 
     this.logger.debug('All inactive products has been deleted');
   }
+
+  @Cron(CronExpression.EVERY_WEEK)
+  async deleteExpiredTokens() {
+    await this.prismaService.passwordResetToken.deleteMany({
+      where: { expiresAt: { lte: new Date() } },
+    });
+
+    this.logger.debug('All expired tokens has been deleted');
+  }
 }
