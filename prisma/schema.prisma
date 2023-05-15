@@ -77,3 +77,10 @@ model Image {
 
   product Product[]
 }
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
+}

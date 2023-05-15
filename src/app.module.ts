@@ -12,6 +12,8 @@ import { SchedulerModule } from './scheduler/scheduler.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { FileModule } from './file/file.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { FileModule } from './file/file.module';
     ProductModule,
     SchedulerModule,
     FileModule,
+    AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [

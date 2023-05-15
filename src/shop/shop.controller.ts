@@ -8,7 +8,9 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { Authenticated } from 'src/auth/guards/authenticated.guard';
 import { CreateShopDTO } from 'src/shop/dto/create-shop.dto';
 import { FindShopFiltersDTO } from 'src/shop/dto/find-shop-filters.dto';
 import { ShopListDTO } from 'src/shop/dto/shop-list.dto';
@@ -19,6 +21,7 @@ import { ShopService } from 'src/shop/shop.service';
 export class ShopController {
   constructor(private shopService: ShopService) {}
 
+  @UseGuards(Authenticated)
   @Get('all')
   async find(@Query() filtersDTO: FindShopFiltersDTO) {
     const { shops, totalCount, totalPages } = await this.shopService.find(
