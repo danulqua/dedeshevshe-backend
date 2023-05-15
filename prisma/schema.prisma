@@ -72,7 +72,7 @@ model Shop {
 model Image {
   id        Int      @id @default(autoincrement())
   url       String   @db.VarChar(255)
-  isActive  Boolean  @default(true)
+  isActive  Boolean  @default(false)
   createdAt DateTime @default(now())
 
   product Product[]

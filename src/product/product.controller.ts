@@ -8,7 +8,12 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ImageDTO } from 'src/file/dto/file.dto';
+import { FileService } from 'src/file/file.service';
 import { CreateProductDTO } from 'src/product/dto/create-product.dto';
 import { FindProductFiltersDTO } from 'src/product/dto/find-product-filters.dto';
 import { ProductListDTO } from 'src/product/dto/product-list.dto';
@@ -17,7 +22,10 @@ import { ProductService } from 'src/product/product.service';
 
 @Controller('product')
 export class ProductController {
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private fileService: FileService,
+  ) {}
 
   @Get('all')
   async find(@Query() filtersDTO: FindProductFiltersDTO) {
@@ -57,5 +65,12 @@ export class ProductController {
   @Delete(':productId')
   delete(@Param('productId', ParseIntPipe) productId: number) {
     return this.productService.delete(productId);
+  }
+
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('image/upload')
+  async uploadLogo(@UploadedFile() file: Express.Multer.File) {
+    const logo = await this.fileService.createFile(file, 'jpg');
+    return new ImageDTO(logo);
   }
 }
