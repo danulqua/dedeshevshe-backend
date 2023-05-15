@@ -8,6 +8,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDTO } from 'src/user/dto/create-user.dto';
 import { UpdateUserDTO } from 'src/user/dto/update-user.dto';
+import { FindUserFiltersDTO } from 'src/user/dto/find-user-filters.dto';
 
 const userSelect: Prisma.UserSelect = {
   id: true,
@@ -20,12 +21,35 @@ const userSelect: Prisma.UserSelect = {
 export class UserService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async find() {
-    const users = await this.prismaService.user.findMany();
-    return users.map((user) => {
-      delete user.passwordHash;
-      return user;
-    });
+  async find(filtersDTO: FindUserFiltersDTO = {}) {
+    const { name, email, role, limit, page = 1, sortBy, order } = filtersDTO;
+
+    const query: Prisma.UserFindManyArgs = {
+      where: {
+        AND: [
+          name ? { name: { contains: name, mode: 'insensitive' } } : {},
+          email ? { email: { contains: email, mode: 'insensitive' } } : {},
+          role ? { role } : {},
+        ],
+      },
+      select: { ...userSelect, createdAt: true, updatedAt: true },
+      orderBy: sortBy ? { [sortBy]: order ?? 'asc' } : undefined,
+      take: limit,
+      skip: limit,
+    };
+
+    if (page && limit) {
+      query.skip = (page - 1) * limit;
+    }
+
+    const [users, totalCount] = await Promise.all([
+      this.prismaService.user.findMany(query),
+      this.prismaService.user.count({ where: query.where }),
+    ]);
+
+    const totalPages = totalCount ? Math.ceil(totalCount / limit) || 1 : 0;
+
+    return { users, totalCount, totalPages };
   }
 
   async findByEmail(email: string) {

@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
@@ -15,7 +16,9 @@ import { User } from 'src/auth/decorators/user.decorator';
 import { Authenticated } from 'src/auth/guards/authenticated.guard';
 import { CreateUserDTO } from 'src/user/dto/create-user.dto';
 import { EditProfileDTO } from 'src/user/dto/edit-profile.dto';
+import { FindUserFiltersDTO } from 'src/user/dto/find-user-filters.dto';
 import { UpdateUserDTO } from 'src/user/dto/update-user.dto';
+import { UserListDTO } from 'src/user/dto/user-list.dto';
 import { UserService } from 'src/user/user.service';
 
 @Controller('user')
@@ -38,9 +41,12 @@ export class UserController {
 
   @UseGuards(Authenticated)
   @Get('all')
-  async find() {
-    const users = await this.userService.find();
-    return users;
+  async find(@Query() filtersDTO: FindUserFiltersDTO) {
+    const { users, totalCount, totalPages } = await this.userService.find(
+      filtersDTO,
+    );
+
+    return new UserListDTO({ items: users, totalCount, totalPages });
   }
 
   @UseGuards(Authenticated)
