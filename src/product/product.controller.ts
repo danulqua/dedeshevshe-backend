@@ -13,6 +13,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UserRole } from '@prisma/client';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 import { User } from 'src/auth/decorators/user.decorator';
 import { Authenticated } from 'src/auth/guards/authenticated.guard';
 import { ImageDTO } from 'src/file/dto/file.dto';
@@ -30,7 +32,6 @@ export class ProductController {
     private fileService: FileService,
   ) {}
 
-  @UseGuards(Authenticated)
   @Get('all')
   async find(@Query() filtersDTO: FindProductFiltersDTO) {
     const { products, totalCount, totalPages } = await this.productService.find(
@@ -54,6 +55,7 @@ export class ProductController {
   }
 
   @UseGuards(Authenticated)
+  @Roles(UserRole.ADMIN)
   @Post()
   create(@Body() productDTO: CreateProductDTO, @User() user) {
     return this.productService.create(user.id, productDTO);
@@ -82,6 +84,7 @@ export class ProductController {
   }
 
   @UseGuards(Authenticated)
+  @Roles(UserRole.ADMIN)
   @Patch(':productId')
   update(
     @Param('productId', ParseIntPipe) productId: number,
@@ -91,6 +94,7 @@ export class ProductController {
   }
 
   @UseGuards(Authenticated)
+  @Roles(UserRole.ADMIN)
   @Delete(':productId')
   delete(@Param('productId', ParseIntPipe) productId: number) {
     return this.productService.delete(productId);

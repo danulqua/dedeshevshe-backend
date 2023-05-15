@@ -15,14 +15,14 @@ model User {
   email        String   @unique @db.VarChar(100)
   name         String   @db.VarChar(255)
   passwordHash String   @db.VarChar(100)
-  role         Role     @default(USER)
+  role         UserRole @default(USER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   products Product[]
 }
 
-enum Role {
+enum UserRole {
   USER
   ADMIN
 }
