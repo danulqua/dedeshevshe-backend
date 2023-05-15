@@ -1,8 +1,15 @@
 import * as bcrypt from 'bcryptjs';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import * as crypto from 'crypto';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { Prisma } from '@prisma/client';
+import { ResetPasswordDTO } from 'src/auth/dto/reset-password.dto';
+import { MailService } from 'src/mail/mail.service';
 
 interface AuthParams {
   email: string;
@@ -19,8 +26,9 @@ const userSelect: Prisma.UserSelect = {
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prismaService: PrismaService,
-    private readonly userService: UserService,
+    private prismaService: PrismaService,
+    private userService: UserService,
+    private mailService: MailService,
   ) {}
 
   async signUp({ email, password }: AuthParams) {
@@ -53,6 +61,53 @@ export class AuthService {
 
     delete user.passwordHash;
     return user;
+  }
+
+  async resetPassword({ email }: ResetPasswordDTO) {
+    const user = await this.userService.findByEmail(email);
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // Token will expire at 10 minutes from now
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    await this.prismaService.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        token,
+        expiresAt,
+      },
+    });
+
+    await this.mailService.sendResetPasswordLink(user, token);
+
+    return { message: 'Check your email for further instructions' };
+  }
+
+  async changePassword(token: string, password: string) {
+    const resetToken = await this.validateToken(token);
+
+    const passwordHash = await this.hashPassword(password);
+
+    await this.prismaService.user.update({
+      where: { id: resetToken.userId },
+      data: { passwordHash },
+    });
+
+    await this.prismaService.passwordResetToken.delete({
+      where: { id: resetToken.id },
+    });
+  }
+
+  async validateToken(token: string) {
+    const resetToken = await this.prismaService.passwordResetToken.findUnique({
+      where: { token },
+      include: { user: true },
+    });
+
+    const isValid = resetToken && resetToken.expiresAt > new Date();
+    if (!isValid) throw new UnauthorizedException('Invalid or expired token');
+
+    return resetToken;
   }
 
   private hashPassword(password: string): Promise<string> {

@@ -19,12 +19,23 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  products Product[]
+  products           Product[]
+  PasswordResetToken PasswordResetToken[]
 }
 
 enum UserRole {
   USER
   ADMIN
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
 }
 
 model Product {

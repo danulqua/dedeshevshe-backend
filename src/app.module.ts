@@ -15,6 +15,7 @@ import { FileModule } from './file/file.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { WithRoles } from 'src/auth/guards/with-roles.guard';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { WithRoles } from 'src/auth/guards/with-roles.guard';
       rootPath: path.resolve(__dirname, 'static', 'uploads'),
       serveRoot: '/static/uploads',
     }),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
     PrismaModule,
     ZakazModule,
@@ -32,6 +33,7 @@ import { WithRoles } from 'src/auth/guards/with-roles.guard';
     FileModule,
     AuthModule,
     UserModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [
