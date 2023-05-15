@@ -11,6 +11,27 @@ import { UpdateProductDTO } from 'src/product/dto/update-product.dto';
 import { ShopService } from 'src/shop/shop.service';
 import { ZakazService } from 'src/zakaz/zakaz.service';
 
+const productInclude: Prisma.ProductInclude = {
+  shop: {
+    select: {
+      id: true,
+      title: true,
+    },
+  },
+  user: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+  image: {
+    select: {
+      id: true,
+      url: true,
+    },
+  },
+};
+
 @Injectable()
 export class ProductService {
   constructor(
@@ -41,6 +62,7 @@ export class ProductService {
         discount: discountsOnly ? { gt: 0 } : undefined,
         status: status ?? undefined,
       },
+      include: productInclude,
       take: limit,
       skip: limit ? limit * (page - 1) : undefined,
       orderBy: sortBy ? { [sortBy]: order ?? 'asc' } : undefined,
@@ -51,7 +73,7 @@ export class ProductService {
       this.prismaService.product.count({ where: query.where }),
     ]);
 
-    const totalPages = totalCount ? Math.ceil(totalCount / limit) : 0;
+    const totalPages = totalCount ? Math.ceil(totalCount / limit) || 1 : 0;
 
     return { products, totalCount, totalPages };
   }
@@ -79,10 +101,12 @@ export class ProductService {
 
       // If shop is external - we have to search externally
       if (shopFromDB.isExternal) {
-        const products = await this.zakazService.getProductsByShop({
-          query: title,
-          filters: { shopId: shopFromDB.externalId, maxPrice, discountsOnly },
-        });
+        const products = (
+          await this.zakazService.getProductsByShop({
+            query: title,
+            filters: { shopId: shopFromDB.externalId, maxPrice, discountsOnly },
+          })
+        ).map((p) => ({ ...p, isExternal: true }));
 
         // Sort products by price in ascending order
         products.sort((a, b) => a.price - b.price);
@@ -117,9 +141,10 @@ export class ProductService {
       ]);
 
       // Sort products by price in ascending order
-      const products = [...internalProducts.products, ...externalProducts].sort(
-        (a, b) => a.price - b.price,
-      );
+      const products = [
+        ...internalProducts.products,
+        ...externalProducts.map((p) => ({ ...p, isExternal: true })),
+      ].sort((a, b) => a.price - b.price);
 
       // Paginate products
       const totalCount = products.length;
@@ -138,6 +163,7 @@ export class ProductService {
   async findOne(productId: number) {
     const product = await this.prismaService.product.findUnique({
       where: { id: productId },
+      include: productInclude,
     });
 
     if (!product)
@@ -146,21 +172,30 @@ export class ProductService {
     return product;
   }
 
-  async create(productDto: CreateProductDTO) {
+  async create(productDTO: CreateProductDTO) {
+    if (productDTO.imageId) {
+      const fileToUpdate = await this.prismaService.image.findUnique({
+        where: { id: productDTO.imageId },
+      });
+
+      if (!fileToUpdate)
+        throw new BadRequestException('Provided file does not exist');
+    }
+
     const shopFromDB = await this.prismaService.shop.findUnique({
-      where: { id: productDto.shopId },
+      where: { id: productDTO.shopId },
     });
 
     if (!shopFromDB)
-      throw new NotFoundException('Shop with this id does not exist');
+      throw new BadRequestException('Shop with this id does not exist');
 
-    if (productDto.userId) {
+    if (productDTO.userId) {
       const userFromDB = await this.prismaService.user.findUnique({
-        where: { id: productDto.userId },
+        where: { id: productDTO.userId },
       });
 
       if (!userFromDB)
-        throw new NotFoundException('User with this id does not exist');
+        throw new BadRequestException('User with this id does not exist');
     }
 
     const {
@@ -174,27 +209,36 @@ export class ProductService {
       status,
       shopId,
       userId,
-    } = productDto;
+      imageId,
+    } = productDTO;
 
     const discountValue = discount?.value;
     const oldPrice = discount?.oldPrice;
 
-    const product = await this.prismaService.product.create({
-      data: {
-        title,
-        description,
-        url,
-        price,
-        discount: discountValue,
-        oldPrice,
-        volume,
-        weight,
-        isExternal: false,
-        status,
-        shopId,
-        userId,
-      },
-    });
+    const [product] = await [
+      this.prismaService.product.create({
+        data: {
+          title,
+          description,
+          url,
+          price,
+          discount: discountValue,
+          oldPrice,
+          volume,
+          weight,
+          isExternal: false,
+          status,
+          shopId,
+          userId,
+          imageId,
+        },
+        include: productInclude,
+      }),
+      this.prismaService.image.update({
+        where: { id: imageId },
+        data: { isActive: true },
+      }),
+    ];
 
     return product;
   }
@@ -237,7 +281,31 @@ export class ProductService {
       status,
       shopId,
       userId,
+      imageId,
     } = productDto;
+
+    if (imageId) {
+      if (imageId !== null) {
+        const fileToUpdate = await this.prismaService.image.findUnique({
+          where: { id: imageId },
+        });
+
+        if (!fileToUpdate)
+          throw new BadRequestException('Provided file does not exist');
+
+        await this.prismaService.image.update({
+          where: { id: fileToUpdate.id },
+          data: { isActive: true },
+        });
+      }
+
+      if (productFromDB.imageId) {
+        await this.prismaService.image.update({
+          where: { id: productFromDB.imageId },
+          data: { isActive: false },
+        });
+      }
+    }
 
     const discountValue = discount?.value;
     const oldPrice = discount?.oldPrice;
@@ -256,7 +324,9 @@ export class ProductService {
         status,
         shopId,
         userId,
+        imageId,
       },
+      include: productInclude,
     });
 
     return updatedProduct;
@@ -269,6 +339,13 @@ export class ProductService {
 
     if (!productFromDB) {
       throw new NotFoundException('Product with this id does not exist');
+    }
+
+    if (productFromDB.imageId) {
+      await this.prismaService.image.update({
+        where: { id: productFromDB.imageId },
+        data: { isActive: false },
+      });
     }
 
     const deletedProduct = await this.prismaService.product.delete({

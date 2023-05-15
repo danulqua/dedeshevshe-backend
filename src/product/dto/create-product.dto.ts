@@ -61,4 +61,8 @@ export class CreateProductDTO {
   @IsNumber()
   @IsNotEmpty()
   shopId: number;
+
+  @IsNullable()
+  @IsNumber()
+  imageId: number | null;
 }

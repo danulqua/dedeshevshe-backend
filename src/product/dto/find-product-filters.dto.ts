@@ -56,7 +56,7 @@ export class FindProductFiltersDTO {
 
   @IsOptional()
   @Matches(
-    /^("id"|"title"|"description"|"price"|"discount"|"oldPrice"|"volume"|"weight"|"status"|"createdAt"|"updatedAt"|"userId"|"shopId")$/i,
+    /^(id|title|description|price|discount|oldPrice|volume|weight|status|createdAt|updatedAt|userId|shopId)$/i,
     {
       message: `sortBy must be ${productSortBy.join(', ')}`,
     },
