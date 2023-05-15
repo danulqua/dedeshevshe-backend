@@ -48,6 +48,7 @@ export class ProductService {
       maxPrice,
       discountsOnly,
       status,
+      userId,
       limit,
       page = 1,
       sortBy,
@@ -61,6 +62,7 @@ export class ProductService {
         price: maxPrice ? { lte: maxPrice } : undefined,
         discount: discountsOnly ? { gt: 0 } : undefined,
         status: status ?? undefined,
+        userId: userId ?? undefined,
       },
       include: productInclude,
       take: limit,
@@ -167,12 +169,14 @@ export class ProductService {
     });
 
     if (!product)
-      throw new NotFoundException('Product with this id does not exist');
+      throw new NotFoundException(
+        `Product with id ${productId} does not exist`,
+      );
 
     return product;
   }
 
-  async create(productDTO: CreateProductDTO) {
+  async create(userId: number, productDTO: CreateProductDTO) {
     if (productDTO.imageId) {
       const fileToUpdate = await this.prismaService.image.findUnique({
         where: { id: productDTO.imageId },
@@ -187,15 +191,17 @@ export class ProductService {
     });
 
     if (!shopFromDB)
-      throw new BadRequestException('Shop with this id does not exist');
+      throw new BadRequestException(
+        `Shop with id ${productDTO.shopId} does not exist`,
+      );
 
-    if (productDTO.userId) {
+    if (userId) {
       const userFromDB = await this.prismaService.user.findUnique({
-        where: { id: productDTO.userId },
+        where: { id: userId },
       });
 
       if (!userFromDB)
-        throw new BadRequestException('User with this id does not exist');
+        throw new BadRequestException(`User with id ${userId} does not exist`);
     }
 
     const {
@@ -208,7 +214,6 @@ export class ProductService {
       weight,
       status,
       shopId,
-      userId,
       imageId,
     } = productDTO;
 
@@ -243,31 +248,26 @@ export class ProductService {
     return product;
   }
 
-  async update(productId: number, productDto: UpdateProductDTO) {
+  async update(productId: number, productDTO: UpdateProductDTO) {
     const productFromDB = await this.prismaService.product.findUnique({
       where: { id: productId },
     });
 
     if (!productFromDB) {
-      throw new NotFoundException('Product with this id does not exist');
+      throw new NotFoundException(
+        `Product with id ${productId} does not exist`,
+      );
     }
 
-    if (productDto.shopId) {
+    if (productDTO.shopId) {
       const shopFromDB = await this.prismaService.shop.findUnique({
-        where: { id: productDto.shopId },
+        where: { id: productDTO.shopId },
       });
 
       if (!shopFromDB)
-        throw new NotFoundException('Shop with this id does not exist');
-    }
-
-    if (productDto.userId) {
-      const userFromDB = await this.prismaService.user.findUnique({
-        where: { id: productDto.userId },
-      });
-
-      if (!userFromDB)
-        throw new NotFoundException('User with this id does not exist');
+        throw new NotFoundException(
+          `Shop with id ${productDTO.shopId} does not exist`,
+        );
     }
 
     const {
@@ -280,9 +280,8 @@ export class ProductService {
       weight,
       status,
       shopId,
-      userId,
       imageId,
-    } = productDto;
+    } = productDTO;
 
     if (imageId) {
       if (imageId !== null) {
@@ -323,7 +322,6 @@ export class ProductService {
         weight,
         status,
         shopId,
-        userId,
         imageId,
       },
       include: productInclude,
@@ -338,7 +336,9 @@ export class ProductService {
     });
 
     if (!productFromDB) {
-      throw new NotFoundException('Product with this id does not exist');
+      throw new NotFoundException(
+        `Product with id ${productId} does not exist`,
+      );
     }
 
     if (productFromDB.imageId) {

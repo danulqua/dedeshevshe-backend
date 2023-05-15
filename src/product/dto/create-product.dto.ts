@@ -54,10 +54,6 @@ export class CreateProductDTO {
   @IsEnum(ProductStatus)
   status?: ProductStatus;
 
-  @IsNullable()
-  @IsNumber()
-  userId: number | null;
-
   @IsNumber()
   @IsNotEmpty()
   shopId: number;

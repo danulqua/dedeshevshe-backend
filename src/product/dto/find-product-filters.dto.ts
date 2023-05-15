@@ -48,6 +48,10 @@ export class FindProductFiltersDTO {
 
   @IsOptional()
   @IsNumber()
+  userId?: number;
+
+  @IsOptional()
+  @IsNumber()
   limit?: number;
 
   @IsOptional()
