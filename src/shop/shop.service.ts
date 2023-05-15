@@ -1,17 +1,25 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
+  OnApplicationBootstrap,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, Shop } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateShopDTO } from 'src/shop/dto/create-shop.dto';
 import { FindShopFiltersDTO } from 'src/shop/dto/find-shop-filters.dto';
 import { UpdateShopDTO } from 'src/shop/dto/update-shop.dto';
+import { ZakazService } from 'src/zakaz/zakaz.service';
 
 @Injectable()
-export class ShopService {
-  constructor(private prismaService: PrismaService) {}
+export class ShopService implements OnApplicationBootstrap {
+  constructor(
+    private prismaService: PrismaService,
+    private zakazService: ZakazService,
+  ) {}
+
+  private readonly logger = new Logger(ShopService.name);
 
   async find(filtersDTO: FindShopFiltersDTO = {}) {
     const { title, source, limit, page = 1, sortBy, order } = filtersDTO;
@@ -111,5 +119,33 @@ export class ShopService {
     });
 
     return deletedShop;
+  }
+
+  private async fetchExternalShops() {
+    const externalShopsFromDB = await this.prismaService.shop.findMany({
+      where: { isExternal: true },
+    });
+
+    if (externalShopsFromDB.length > 0) return;
+
+    const externalShops = await this.zakazService.getShops();
+    const preparedShops = externalShops.map(
+      (shop): Omit<Shop, 'id' | 'createdAt' | 'updatedAt'> => ({
+        title: shop.title,
+        externalId: shop.id,
+        isExternal: true,
+      }),
+    );
+
+    await this.prismaService.shop.createMany({
+      data: preparedShops,
+    });
+
+    this.logger.debug('External shops were fetched and saved to DB');
+  }
+
+  // If there are no external shops in DB - fetch them
+  async onApplicationBootstrap() {
+    await this.fetchExternalShops();
   }
 }

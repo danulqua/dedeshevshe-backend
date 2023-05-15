@@ -9,7 +9,7 @@ import {
   Shop,
 } from 'src/zakaz/api/types';
 import { ProductZakaz } from 'src/zakaz/types';
-import { ShopService } from 'src/shop/shop.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 interface SearchProductsParams {
   query: string;
@@ -23,7 +23,7 @@ interface SearchProductsByShopParams {
 
 @Injectable()
 export class ZakazService {
-  constructor(private shopService: ShopService) {}
+  constructor(private prismaService: PrismaService) {}
 
   async getShops() {
     try {
@@ -53,7 +53,9 @@ export class ZakazService {
       let resultsArray: ProductZakaz[] = [];
 
       // Get shops
-      const { shops } = await this.shopService.find({ source: 'external' });
+      const shops = await this.prismaService.shop.findMany({
+        where: { isExternal: true },
+      });
 
       // Create promise array where every promise is going to make request to the specific shop
       const promises = shops.map((shop) =>
@@ -94,8 +96,9 @@ export class ZakazService {
   async getProductsByShop({ query, filters }: SearchProductsByShopParams) {
     try {
       // Get shops
-      const { shops } = await this.shopService.find({ source: 'external' });
-
+      const shops = await this.prismaService.shop.findMany({
+        where: { isExternal: true },
+      });
       // Find shop by query
       const shopTitle = shops.find(
         (item) => item.externalId === filters.shopId,
