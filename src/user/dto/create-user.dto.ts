@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import { UserRole } from '@prisma/client';
+import { IsEmail, IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';
 
 export class CreateUserDTO {
   @IsString()
@@ -14,4 +15,7 @@ export class CreateUserDTO {
     message: 'password length must be between 8 and 30 characters',
   })
   password: string;
+
+  @IsEnum(UserRole)
+  role: UserRole;
 }

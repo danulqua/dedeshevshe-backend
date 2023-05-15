@@ -1,10 +1,11 @@
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import * as session from 'express-session';
 import * as passport from 'passport';
+import { PrismaClientExceptionFilter } from 'prisma/filters/prisma-client-exception.filter';
 
 async function bootstrap() {
   const port = process.env.PORT || 3000;
@@ -36,6 +37,9 @@ async function bootstrap() {
       }),
     }),
   );
+
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
 
   app.use(passport.initialize());
   app.use(passport.session());

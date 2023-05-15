@@ -58,7 +58,8 @@ export class ShopService implements OnApplicationBootstrap {
       where: { id: shopId },
     });
 
-    if (!shop) throw new NotFoundException('Shop with this id does not exist');
+    if (!shop)
+      throw new NotFoundException(`Shop with id ${shopId} does not exist`);
 
     return shop;
   }
@@ -71,7 +72,7 @@ export class ShopService implements OnApplicationBootstrap {
     });
 
     if (shopFromDB) {
-      throw new ConflictException('Shop with this title already exists');
+      throw new ConflictException(`Shop with title '${title}' already exists`);
     }
 
     const shop = await this.prismaService.shop.create({
@@ -92,7 +93,7 @@ export class ShopService implements OnApplicationBootstrap {
     });
 
     if (!shopFromDB) {
-      throw new NotFoundException('Shop with this id does not exist');
+      throw new NotFoundException(`Shop with id ${shopId} does not exist`);
     }
 
     const updatedShop = await this.prismaService.shop.update({
@@ -111,7 +112,7 @@ export class ShopService implements OnApplicationBootstrap {
     });
 
     if (!shopFromDB) {
-      throw new NotFoundException('Shop with this id does not exist');
+      throw new NotFoundException(`Shop with id ${shopId} does not exist`);
     }
 
     const deletedShop = await this.prismaService.shop.delete({

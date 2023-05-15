@@ -1,7 +1,21 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { UserRole } from '@prisma/client';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 import { User } from 'src/auth/decorators/user.decorator';
 import { Authenticated } from 'src/auth/guards/authenticated.guard';
+import { CreateUserDTO } from 'src/user/dto/create-user.dto';
 import { EditProfileDTO } from 'src/user/dto/edit-profile.dto';
+import { UpdateUserDTO } from 'src/user/dto/update-user.dto';
 import { UserService } from 'src/user/user.service';
 
 @Controller('user')
@@ -18,8 +32,8 @@ export class UserController {
 
   @UseGuards(Authenticated)
   @Patch('editProfile')
-  async editProfile(@Body() dto: EditProfileDTO, @User() user) {
-    return this.userService.edit(user.id, dto);
+  editProfile(@Body() dto: EditProfileDTO, @User() user) {
+    return this.userService.update(user.id, dto);
   }
 
   @UseGuards(Authenticated)
@@ -27,5 +41,29 @@ export class UserController {
   async find() {
     const users = await this.userService.find();
     return users;
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(UserRole.ADMIN)
+  @Post()
+  create(@Body() dto: CreateUserDTO) {
+    return this.userService.create(dto);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(UserRole.ADMIN)
+  @Patch(':userId')
+  update(
+    @Body() dto: UpdateUserDTO,
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    return this.userService.update(userId, dto);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(UserRole.ADMIN)
+  @Delete(':userId')
+  delete(@Param('userId', ParseIntPipe) userId: number) {
+    return this.userService.delete(userId);
   }
 }

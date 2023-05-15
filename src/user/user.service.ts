@@ -31,15 +31,18 @@ export class UserService {
   async findByEmail(email: string) {
     const user = await this.prismaService.user.findUnique({ where: { email } });
 
-    if (!user) throw new NotFoundException();
+    if (!user)
+      throw new NotFoundException(`User with email '${email}' not found`);
 
     return user;
   }
 
-  async findById(id: number) {
-    const user = await this.prismaService.user.findUnique({ where: { id } });
+  async findById(userId: number) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
 
-    if (!user) throw new NotFoundException();
+    if (!user) throw new NotFoundException(`User with id ${userId} not found`);
 
     return user;
   }
@@ -53,29 +56,47 @@ export class UserService {
 
     const passwordHash = await this.hashPassword(dto.password);
 
+    const { email, name, role } = dto;
     const user = await this.prismaService.user.create({
-      data: { email: dto.email, passwordHash, name: dto.name },
+      data: { email, passwordHash, name, role },
       select: userSelect,
     });
 
     return user;
   }
 
-  async edit(userId: number, dto: UpdateUserDTO) {
+  async update(userId: number, dto: UpdateUserDTO) {
     const userFromDB = await this.prismaService.user.findUnique({
       where: { id: userId },
     });
 
     if (!userFromDB)
-      throw new BadRequestException(`User with id ${userId} not found`);
+      throw new NotFoundException(`User with id ${userId} not found`);
 
     const passwordHash = dto.password
       ? await this.hashPassword(dto.password)
       : undefined;
 
+    const { email, name, role } = dto;
     const user = await this.prismaService.user.update({
       where: { id: userId },
-      data: { email: dto.email, passwordHash, name: dto.name },
+      data: { email, passwordHash, name, role },
+    });
+
+    return user;
+  }
+
+  async delete(userId: number) {
+    const userFromDB = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!userFromDB)
+      throw new NotFoundException(`User with id ${userId} not found`);
+
+    const user = await this.prismaService.user.delete({
+      where: { id: userId },
+      select: userSelect,
     });
 
     return user;
