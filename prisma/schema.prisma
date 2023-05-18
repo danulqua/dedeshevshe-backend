@@ -59,8 +59,8 @@ model Product {
   shop   Shop @relation(fields: [shopId], references: [id], onDelete: Restrict)
   shopId Int
 
-  image   Image? @relation(fields: [imageId], references: [id], onDelete: Cascade)
-  imageId Int?
+  image   Image? @relation(fields: [imageId], references: [id])
+  imageId Int?   @unique
 }
 
 enum ProductStatus {
@@ -86,7 +86,7 @@ model Image {
   isActive  Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  product Product[]
+  product Product?
 }
 
 model Session {
