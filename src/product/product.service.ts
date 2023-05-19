@@ -94,24 +94,32 @@ export class ProductService {
       page = 1,
     } = filtersDTO;
 
-    // If shopId is provided - we have to find out then to search internally or externally
+    // If shopId was provided - we possibly can search either only internally or both internally and externally
+    // If shopId was not provided - we have to search both internally and externally
     if (shopId) {
       const shopFromDB = await this.shopService.findOne(shopId);
 
       if (!shopFromDB)
         throw new NotFoundException('Shop with this id does not exist');
 
-      // If shop is external - we have to search externally
+      // If shop is external - we have to search both internally and externally
       if (shopFromDB.isExternal) {
-        const products = (
-          await this.zakazService.getProductsByShop({
-            query: title,
-            filters: { shopId: shopFromDB.externalId, maxPrice, discountsOnly },
-          })
-        ).map((p) => ({ ...p, isExternal: true }));
+        const internalPromise = this.find({ ...filtersDTO, status: 'ACTIVE' });
+        const externalPromise = this.zakazService.getProductsByShop({
+          query: title,
+          filters: { shopId: shopFromDB.externalId, maxPrice, discountsOnly },
+        });
+
+        const [internalProducts, externalProducts] = await Promise.all([
+          internalPromise,
+          externalPromise,
+        ]);
 
         // Sort products by price in ascending order
-        products.sort((a, b) => a.price - b.price);
+        const products = [
+          ...internalProducts.products,
+          ...externalProducts.map((p) => ({ ...p, isExternal: true })),
+        ].sort((a, b) => a.price - b.price);
 
         // Paginate products
         const totalCount = products.length;
@@ -124,42 +132,45 @@ export class ProductService {
           : products;
 
         return { products: paginatedProducts, totalCount, totalPages };
-      } else {
-        // If shop is internal - we have to search internally
-        const result = await this.find({ ...filtersDTO, status: 'ACTIVE' });
-        return result;
       }
-    } else {
-      // If shopId is not provided - we have to search both internally and externally
-      const internalPromise = this.find({ ...filtersDTO, status: 'ACTIVE' });
-      const externalPromise = this.zakazService.getProducts({
-        query: title,
-        filters: { maxPrice, discountsOnly },
-      });
 
-      const [internalProducts, externalProducts] = await Promise.all([
-        internalPromise,
-        externalPromise,
-      ]);
-
-      // Sort products by price in ascending order
-      const products = [
-        ...internalProducts.products,
-        ...externalProducts.map((p) => ({ ...p, isExternal: true })),
-      ].sort((a, b) => a.price - b.price);
-
-      // Paginate products
-      const totalCount = products.length;
-      const totalPages = totalCount ? Math.ceil(totalCount / limit) || 1 : 0;
-
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-      const paginatedProducts = limit
-        ? products.slice(startIndex, endIndex)
-        : products;
-
-      return { products: paginatedProducts, totalCount, totalPages };
+      // Shop is internal - we have to search only internally
+      const result = await this.find({ ...filtersDTO, status: 'ACTIVE' });
+      return result;
     }
+
+    // shopId is not provided - we have to search both internally and externally
+    const internalPromise = this.find({ ...filtersDTO, status: 'ACTIVE' });
+    const externalPromise = this.zakazService.getProducts({
+      query: title,
+      filters: {
+        maxPrice: filtersDTO.maxPrice,
+        discountsOnly: filtersDTO.discountsOnly,
+      },
+    });
+
+    const [internalProducts, externalProducts] = await Promise.all([
+      internalPromise,
+      externalPromise,
+    ]);
+
+    // Sort products by price in ascending order
+    const products = [
+      ...internalProducts.products,
+      ...externalProducts.map((p) => ({ ...p, isExternal: true })),
+    ].sort((a, b) => a.price - b.price);
+
+    // Paginate products
+    const totalCount = products.length;
+    const totalPages = totalCount ? Math.ceil(totalCount / limit) || 1 : 0;
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedProducts = limit
+      ? products.slice(startIndex, endIndex)
+      : products;
+
+    return { products: paginatedProducts, totalCount, totalPages };
   }
 
   async findOne(productId: number) {
