@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, Product } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductDTO } from 'src/product/dto/create-product.dto';
 import { FindProductFiltersDTO } from 'src/product/dto/find-product-filters.dto';
@@ -283,27 +283,8 @@ export class ProductService {
       imageId,
     } = productDTO;
 
-    if (imageId) {
-      if (imageId !== null) {
-        const fileToUpdate = await this.prismaService.image.findUnique({
-          where: { id: imageId },
-        });
-
-        if (!fileToUpdate)
-          throw new BadRequestException('Provided file does not exist');
-
-        await this.prismaService.image.update({
-          where: { id: fileToUpdate.id },
-          data: { isActive: true },
-        });
-      }
-
-      if (productFromDB.imageId) {
-        await this.prismaService.image.update({
-          where: { id: productFromDB.imageId },
-          data: { isActive: false },
-        });
-      }
+    if (imageId !== undefined) {
+      await this.updateImage(productFromDB, imageId);
     }
 
     const discountValue = discount?.value;
@@ -328,6 +309,36 @@ export class ProductService {
     });
 
     return updatedProduct;
+  }
+
+  private async updateImage(productFromDB: Product, newImageId: number | null) {
+    if (!newImageId) {
+      await this.prismaService.image.update({
+        where: { id: productFromDB.imageId },
+        data: { isActive: false },
+      });
+
+      return;
+    }
+
+    const fileToUpdate = await this.prismaService.image.findUnique({
+      where: { id: newImageId },
+    });
+
+    if (!fileToUpdate)
+      throw new BadRequestException('Provided file does not exist');
+
+    if (productFromDB.imageId) {
+      await this.prismaService.image.update({
+        where: { id: productFromDB.imageId },
+        data: { isActive: false },
+      });
+    }
+
+    await this.prismaService.image.update({
+      where: { id: newImageId },
+      data: { isActive: true },
+    });
   }
 
   async delete(productId: number) {
