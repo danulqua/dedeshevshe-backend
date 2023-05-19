@@ -26,7 +26,7 @@ export class FileService {
       );
 
     const fileName = randomBytes(16).toString('hex') + `.${extension}`;
-    const filePath = path.resolve(__dirname, '..', 'static', 'uploads');
+    const filePath = path.resolve(__dirname, '../..', 'static', 'uploads');
 
     try {
       if (!existsSync(filePath)) {
@@ -41,7 +41,7 @@ export class FileService {
   }
 
   async deleteFile(fileName: string) {
-    const filePath = path.resolve(__dirname, '..', 'static', 'uploads');
+    const filePath = path.resolve(__dirname, '../..', 'static', 'uploads');
 
     try {
       await fs.rm(path.join(filePath, fileName));

@@ -20,7 +20,7 @@ import { MailModule } from './mail/mail.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: path.resolve(__dirname, 'static', 'uploads'),
+      rootPath: path.resolve(__dirname, '..', 'static', 'uploads'),
       serveRoot: '/static/uploads',
     }),
     ConfigModule.forRoot({ isGlobal: true }),
