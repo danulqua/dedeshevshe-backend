@@ -51,6 +51,13 @@ export class UserController {
 
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
+  @Get(':userId')
+  findOne(@Param('userId', ParseIntPipe) userId: number) {
+    return this.userService.findById(userId);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(UserRole.ADMIN)
   @Post()
   create(@Body() dto: CreateUserDTO) {
     return this.userService.create(dto);
