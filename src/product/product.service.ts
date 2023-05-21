@@ -61,7 +61,7 @@ export class ProductService {
         shopId: shopId ?? undefined,
         price: maxPrice ? { lte: maxPrice } : undefined,
         discount: discountsOnly ? { gt: 0 } : undefined,
-        status: status ?? undefined,
+        status: status ?? { not: 'IN_REVIEW' },
         userId: userId ?? undefined,
       },
       include: productInclude,
@@ -298,8 +298,9 @@ export class ProductService {
       await this.updateImage(productFromDB, imageId);
     }
 
-    const discountValue = discount?.value;
-    const oldPrice = discount?.oldPrice;
+    const isDiscount = discount !== undefined;
+    const discountValue = isDiscount !== null ? discount?.value : null;
+    const oldPrice = isDiscount !== null ? discount?.oldPrice : null;
 
     const updatedProduct = await this.prismaService.product.update({
       where: { id: productId },
@@ -308,8 +309,8 @@ export class ProductService {
         description,
         url,
         price,
-        discount: discountValue || null,
-        oldPrice: oldPrice || null,
+        discount: discountValue,
+        oldPrice: oldPrice,
         volume,
         weight,
         status,
