@@ -2,17 +2,25 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   ParseIntPipe,
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UserRole } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Authenticated } from 'src/auth/guards/authenticated.guard';
+import { ImageDTO } from 'src/file/dto/file.dto';
+import { FileService } from 'src/file/file.service';
 import { CreateShopDTO } from 'src/shop/dto/create-shop.dto';
 import { FindShopFiltersDTO } from 'src/shop/dto/find-shop-filters.dto';
 import { ShopListDTO } from 'src/shop/dto/shop-list.dto';
@@ -21,7 +29,10 @@ import { ShopService } from 'src/shop/shop.service';
 
 @Controller('shop')
 export class ShopController {
-  constructor(private shopService: ShopService) {}
+  constructor(
+    private shopService: ShopService,
+    private fileService: FileService,
+  ) {}
 
   @Get('all')
   async find(@Query() filtersDTO: FindShopFiltersDTO) {
@@ -42,6 +53,27 @@ export class ShopController {
   @Post()
   create(@Body() shopDto: CreateShopDTO) {
     return this.shopService.create(shopDto);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(UserRole.ADMIN)
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('logo/upload')
+  async uploadImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          // 2 mb max file size
+          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
+          // only jpeg and png images
+          new FileTypeValidator({ fileType: /image\/(jpeg)|(png)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    const logo = await this.fileService.uploadFile(file);
+    return new ImageDTO(logo);
   }
 
   @UseGuards(Authenticated)

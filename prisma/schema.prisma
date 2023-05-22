@@ -78,15 +78,20 @@ model Shop {
   updatedAt  DateTime @updatedAt
 
   products Product[]
+
+  image   Image? @relation(fields: [imageId], references: [id])
+  imageId Int?   @unique
 }
 
 model Image {
   id        Int      @id @default(autoincrement())
+  key       String   @unique
   url       String   @db.VarChar(255)
   isActive  Boolean  @default(false)
   createdAt DateTime @default(now())
 
   product Product?
+  shop    Shop?
 }
 
 model Session {

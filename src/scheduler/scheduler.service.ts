@@ -16,14 +16,13 @@ export class SchedulerService {
   async deleteUnusedFiles() {
     const files = await this.prismaService.image.findMany({
       where: { isActive: false },
-      select: { id: true, url: true },
+      select: { key: true, url: true },
     });
 
     // Delete files from the file system and from the database
-    const deletionPromises = [
-      ...files.map((item) => this.fileService.deleteFile(item.url)),
-      this.prismaService.image.deleteMany({ where: { isActive: false } }),
-    ];
+    const deletionPromises = files.map((item) =>
+      this.fileService.deleteFile(item.key),
+    );
 
     await Promise.all(deletionPromises);
     this.logger.debug('All unused files has been deleted');

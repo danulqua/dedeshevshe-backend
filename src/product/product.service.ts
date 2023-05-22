@@ -231,7 +231,7 @@ export class ProductService {
     const discountValue = discount?.value;
     const oldPrice = discount?.oldPrice;
 
-    const [product] = await [
+    const [product] = await Promise.all([
       this.prismaService.product.create({
         data: {
           title,
@@ -254,7 +254,7 @@ export class ProductService {
         where: { id: imageId },
         data: { isActive: true },
       }),
-    ];
+    ]);
 
     return product;
   }

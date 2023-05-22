@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
@@ -12,6 +13,14 @@ import { FindShopFiltersDTO } from 'src/shop/dto/find-shop-filters.dto';
 import { UpdateShopDTO } from 'src/shop/dto/update-shop.dto';
 import { ZakazService } from 'src/zakaz/zakaz.service';
 
+const shopInclude: Prisma.ShopInclude = {
+  image: {
+    select: {
+      id: true,
+      url: true,
+    },
+  },
+};
 @Injectable()
 export class ShopService implements OnApplicationBootstrap {
   constructor(
@@ -34,6 +43,7 @@ export class ShopService implements OnApplicationBootstrap {
             ? false
             : undefined,
       },
+      include: shopInclude,
       take: limit,
       skip: limit,
       orderBy: sortBy ? { [sortBy]: order ?? 'asc' } : undefined,
@@ -56,6 +66,7 @@ export class ShopService implements OnApplicationBootstrap {
   async findOne(shopId: number) {
     const shop = await this.prismaService.shop.findUnique({
       where: { id: shopId },
+      include: shopInclude,
     });
 
     if (!shop)
@@ -65,7 +76,16 @@ export class ShopService implements OnApplicationBootstrap {
   }
 
   async create(shopDto: CreateShopDTO) {
-    const { title } = shopDto;
+    const { title, imageId } = shopDto;
+
+    if (imageId) {
+      const fileToUpdate = await this.prismaService.image.findUnique({
+        where: { id: imageId },
+      });
+
+      if (!fileToUpdate)
+        throw new BadRequestException('Provided file does not exist');
+    }
 
     const shopFromDB = await this.prismaService.shop.findUnique({
       where: { title },
@@ -75,18 +95,25 @@ export class ShopService implements OnApplicationBootstrap {
       throw new ConflictException(`Shop with title '${title}' already exists`);
     }
 
-    const shop = await this.prismaService.shop.create({
-      data: {
-        title,
-        isExternal: false,
-      },
-    });
+    const [shop] = await Promise.all([
+      this.prismaService.shop.create({
+        data: {
+          title,
+          isExternal: false,
+        },
+        include: shopInclude,
+      }),
+      this.prismaService.image.update({
+        where: { id: imageId },
+        data: { isActive: true },
+      }),
+    ]);
 
     return shop;
   }
 
   async update(shopId: number, shopDto: UpdateShopDTO) {
-    const { title } = shopDto;
+    const { title, imageId } = shopDto;
 
     const shopFromDB = await this.prismaService.shop.findUnique({
       where: { id: shopId },
@@ -96,14 +123,50 @@ export class ShopService implements OnApplicationBootstrap {
       throw new NotFoundException(`Shop with id ${shopId} does not exist`);
     }
 
+    if (imageId !== undefined) {
+      await this.updateImage(shopFromDB, imageId);
+    }
+
     const updatedShop = await this.prismaService.shop.update({
       where: { id: shopId },
       data: {
         title,
+        imageId,
       },
+      include: shopInclude,
     });
 
     return updatedShop;
+  }
+
+  private async updateImage(shopFromDB: Shop, newImageId: number | null) {
+    if (!newImageId) {
+      await this.prismaService.image.update({
+        where: { id: shopFromDB.imageId },
+        data: { isActive: false },
+      });
+
+      return;
+    }
+
+    const fileToUpdate = await this.prismaService.image.findUnique({
+      where: { id: newImageId },
+    });
+
+    if (!fileToUpdate)
+      throw new BadRequestException('Provided file does not exist');
+
+    if (shopFromDB.imageId) {
+      await this.prismaService.image.update({
+        where: { id: shopFromDB.imageId },
+        data: { isActive: false },
+      });
+    }
+
+    await this.prismaService.image.update({
+      where: { id: newImageId },
+      data: { isActive: true },
+    });
   }
 
   async delete(shopId: number) {
@@ -117,6 +180,7 @@ export class ShopService implements OnApplicationBootstrap {
 
     const deletedShop = await this.prismaService.shop.delete({
       where: { id: shopId },
+      include: shopInclude,
     });
 
     return deletedShop;
@@ -131,7 +195,7 @@ export class ShopService implements OnApplicationBootstrap {
 
     const externalShops = await this.zakazService.getShops();
     const preparedShops = externalShops.map(
-      (shop): Omit<Shop, 'id' | 'createdAt' | 'updatedAt'> => ({
+      (shop): Omit<Shop, 'id' | 'imageId' | 'createdAt' | 'updatedAt'> => ({
         title: shop.title,
         externalId: shop.id,
         isExternal: true,

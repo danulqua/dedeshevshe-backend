@@ -34,7 +34,10 @@ export class S3Service {
       const response = await this.s3Client.send(putCommand);
 
       if (response.$metadata.httpStatusCode === 200) {
-        return `https://${bucket}.s3.amazonaws.com/${key}`;
+        return {
+          key,
+          url: `https://${bucket}.s3.amazonaws.com/${key}`,
+        };
       }
     } catch (error) {
       throw new Error(error);

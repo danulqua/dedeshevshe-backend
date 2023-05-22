@@ -2,8 +2,11 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -103,8 +106,20 @@ export class ProductController {
   @UseGuards(Authenticated)
   @UseInterceptors(FileInterceptor('file'))
   @Post('image/upload')
-  async uploadLogo(@UploadedFile() file: Express.Multer.File) {
-    const logo = await this.fileService.createFile(file, 'jpg');
-    return new ImageDTO(logo);
+  async uploadImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          // 2 mb max file size
+          new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
+          // only jpeg and png images
+          new FileTypeValidator({ fileType: /image\/(jpeg)|(png)/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    const image = await this.fileService.uploadFile(file);
+    return new ImageDTO(image);
   }
 }

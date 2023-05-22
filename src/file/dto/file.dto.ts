@@ -6,6 +6,9 @@ export class ImageDTO implements Image {
   url: string;
 
   @Exclude()
+  key: string;
+
+  @Exclude()
   isActive: boolean;
 
   @Exclude()
