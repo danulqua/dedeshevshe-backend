@@ -16,6 +16,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { WithRoles } from 'src/auth/guards/with-roles.guard';
 import { MailModule } from './mail/mail.module';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { MailModule } from './mail/mail.module';
     AuthModule,
     UserModule,
     MailModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [
