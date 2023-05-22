@@ -1,5 +1,4 @@
 import { Shop } from '@prisma/client';
-
 interface ShopListParams {
   totalCount: number;
   totalPages: number;

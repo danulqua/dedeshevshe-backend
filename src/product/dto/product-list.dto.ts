@@ -1,16 +1,16 @@
 import { Product } from '@prisma/client';
-import { ProductZakaz } from 'src/zakaz/types';
+import { ProductZakazWithShop } from 'src/zakaz/types';
 
 interface ProductListParams {
   totalCount: number;
   totalPages: number;
-  items: (Product | ProductZakaz)[];
+  items: (Product | ProductZakazWithShop)[];
 }
 
 export class ProductListDTO {
   totalCount: number;
   totalPages: number;
-  items: (Product | ProductZakaz)[];
+  items: (Product | ProductZakazWithShop)[];
 
   constructor({ items, totalCount, totalPages }: ProductListParams) {
     this.totalCount = totalCount;

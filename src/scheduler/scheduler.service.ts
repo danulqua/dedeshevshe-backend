@@ -12,6 +12,7 @@ export class SchedulerService {
 
   private readonly logger = new Logger(SchedulerService.name);
 
+  // Delete files from the S3 bucket and database
   @Cron(CronExpression.EVERY_WEEK)
   async deleteUnusedFiles() {
     const files = await this.prismaService.image.findMany({
@@ -19,7 +20,6 @@ export class SchedulerService {
       select: { key: true, url: true },
     });
 
-    // Delete files from the file system and from the database
     const deletionPromises = files.map((item) =>
       this.fileService.deleteFile(item.key),
     );
@@ -28,6 +28,7 @@ export class SchedulerService {
     this.logger.debug('All unused files has been deleted');
   }
 
+  // Delete all products with status INACTIVE
   @Cron(CronExpression.EVERY_WEEK)
   async deleteInactiveProducts() {
     await this.prismaService.product.deleteMany({
@@ -37,6 +38,7 @@ export class SchedulerService {
     this.logger.debug('All inactive products has been deleted');
   }
 
+  // Delete all expired tokens for password reset
   @Cron(CronExpression.EVERY_WEEK)
   async deleteExpiredTokens() {
     await this.prismaService.passwordResetToken.deleteMany({

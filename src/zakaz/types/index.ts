@@ -11,6 +11,17 @@ export interface ProductZakaz {
   weight: number | null;
 }
 
+export type ProductZakazWithShop = Omit<ProductZakaz, 'shop'> & {
+  shop: {
+    id: number;
+    title: string;
+    image?: {
+      id: number;
+      url: string;
+    };
+  };
+};
+
 export interface DiscountZakaz {
   value: number;
   oldPrice: number;

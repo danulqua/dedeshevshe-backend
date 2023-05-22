@@ -16,6 +16,12 @@ const productInclude: Prisma.ProductInclude = {
     select: {
       id: true,
       title: true,
+      image: {
+        select: {
+          id: true,
+          url: true,
+        },
+      },
     },
   },
   user: {
@@ -94,6 +100,17 @@ export class ProductService {
       page = 1,
     } = filtersDTO;
 
+    const shops = await this.prismaService.shop.findMany({
+      include: {
+        image: {
+          select: {
+            id: true,
+            url: true,
+          },
+        },
+      },
+    });
+
     // If shopId was provided - we possibly can search either only internally or both internally and externally
     // If shopId was not provided - we have to search both internally and externally
     if (shopId) {
@@ -118,7 +135,18 @@ export class ProductService {
         // Sort products by price in ascending order
         const products = [
           ...internalProducts.products,
-          ...externalProducts.map((p) => ({ ...p, isExternal: true })),
+          ...externalProducts.map((p) => {
+            const shop = shops.find((s) => p.shop === s.title);
+            return {
+              ...p,
+              isExternal: true,
+              shop: {
+                id: shop.id,
+                title: shop.title,
+                image: shop?.image,
+              },
+            };
+          }),
         ].sort((a, b) => a.price - b.price);
 
         // Paginate products
@@ -157,7 +185,18 @@ export class ProductService {
     // Sort products by price in ascending order
     const products = [
       ...internalProducts.products,
-      ...externalProducts.map((p) => ({ ...p, isExternal: true })),
+      ...externalProducts.map((p) => {
+        const shop = shops.find((s) => p.shop === s.title);
+        return {
+          ...p,
+          isExternal: true,
+          shop: {
+            id: shop.id,
+            title: shop.title,
+            image: shop?.image,
+          },
+        };
+      }),
     ].sort((a, b) => a.price - b.price);
 
     // Paginate products

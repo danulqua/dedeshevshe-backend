@@ -99,6 +99,7 @@ export class ShopService implements OnApplicationBootstrap {
       this.prismaService.shop.create({
         data: {
           title,
+          imageId,
           isExternal: false,
         },
         include: shopInclude,
