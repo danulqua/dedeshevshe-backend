@@ -15,6 +15,7 @@ import { UserModule } from './user/user.module';
 import { WithRoles } from 'src/auth/guards/with-roles.guard';
 import { MailModule } from './mail/mail.module';
 import { S3Module } from './s3/s3.module';
+import { SupermarketModule } from './supermarket/supermarket.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { S3Module } from './s3/s3.module';
     UserModule,
     MailModule,
     S3Module,
+    SupermarketModule,
   ],
   providers: [
     {

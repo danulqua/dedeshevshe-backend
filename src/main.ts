@@ -8,6 +8,12 @@ import * as passport from 'passport';
 import { PrismaClientExceptionFilter } from 'prisma/filters/prisma-client-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ProductDTO, ProductFromZakazDTO } from 'src/product/dto/product.dto';
+import { ShopModule } from 'src/shop/shop.module';
+import { ZakazModule } from 'src/zakaz/zakaz.module';
+import { ProductModule } from 'src/product/product.module';
+import { UserModule } from 'src/user/user.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { SupermarketModule } from 'src/supermarket/supermarket.module';
 
 async function bootstrap() {
   const port = process.env.PORT || 3000;
@@ -46,6 +52,7 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Full API documentation
   const config = new DocumentBuilder()
     .setTitle('Grocify API')
     .setDescription('The Grocify API description')
@@ -54,8 +61,25 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config, {
     extraModels: [ProductDTO, ProductFromZakazDTO],
+    include: [ZakazModule, ProductModule, ShopModule, AuthModule, UserModule],
   });
   SwaggerModule.setup('api/docs', app, document);
+
+  // Public API for supermarkets
+  const supermarketsConfig = new DocumentBuilder()
+    .setTitle('Grocify API для сторонніх супермаркетів')
+    .setDescription(
+      'Опис Grocify API для взаємодії сторонніх супермаркетів із Grocify',
+    )
+    .setVersion('1.0')
+    .addTag('Grocify')
+    .build();
+  const supermarketsDocument = SwaggerModule.createDocument(
+    app,
+    supermarketsConfig,
+    { include: [SupermarketModule] },
+  );
+  SwaggerModule.setup('api/supermarket', app, supermarketsDocument);
 
   await app.listen(port);
 

@@ -9,5 +9,6 @@ import { FileModule } from 'src/file/file.module';
   imports: [ZakazModule, ShopModule, FileModule],
   providers: [ProductService],
   controllers: [ProductController],
+  exports: [ProductService],
 })
 export class ProductModule {}

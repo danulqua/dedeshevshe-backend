@@ -93,7 +93,7 @@ export class ShopController {
   @Roles(UserRole.ADMIN)
   @UseInterceptors(FileInterceptor('file'))
   @Post('logo/upload')
-  async uploadImage(
+  async uploadLogo(
     @UploadedFile(
       new ParseFilePipe({
         validators: [

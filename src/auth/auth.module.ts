@@ -11,5 +11,6 @@ import { MailModule } from 'src/mail/mail.module';
   imports: [UserModule, PassportModule.register({ session: true }), MailModule],
   providers: [AuthService, LocalStrategy, SessionSerializer],
   controllers: [AuthController],
+  exports: [AuthService],
 })
 export class AuthModule {}
