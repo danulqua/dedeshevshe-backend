@@ -1,4 +1,10 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
+import {
+  Controller,
+  Get,
+  InternalServerErrorException,
+  Query,
+} from '@nestjs/common';
 import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,
@@ -12,13 +18,13 @@ import { ProductZakaz } from 'src/zakaz/types';
 import { ZakazService } from 'src/zakaz/zakaz.service';
 
 @ApiTags('Zakaz API')
+@ApiException(() => InternalServerErrorException)
 @Controller('zakaz')
 export class ZakazController {
   constructor(private zakazService: ZakazService) {}
 
   @ApiOperation({ summary: 'Get shops from Zakaz API' })
   @ApiOkResponse({ type: ShopZakazListDTO })
-  @ApiInternalServerErrorResponse()
   @Get('shops')
   async getShops() {
     const shops = await this.zakazService.getShops();
@@ -27,7 +33,6 @@ export class ZakazController {
 
   @ApiOperation({ summary: 'Search products from Zakaz API' })
   @ApiOkResponse({ type: ProductZakazListDTO })
-  @ApiInternalServerErrorResponse()
   @Get('search')
   async searchProducts(@Query() queryDto: SearchQueryDTO) {
     const { q: query, ...filters } = queryDto;

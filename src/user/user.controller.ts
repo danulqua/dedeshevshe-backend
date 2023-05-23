@@ -1,8 +1,13 @@
+import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
+  InternalServerErrorException,
+  NotFoundException,
   Param,
   ParseIntPipe,
   Patch,
@@ -24,11 +29,14 @@ import { UserDTO } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
 
 @ApiTags('Users')
+@ApiException(() => InternalServerErrorException)
+@ApiException(() => ForbiddenException)
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiOperation({ summary: 'Get my profile' })
+  @ApiException(() => new NotFoundException('User with this id not found'))
   @UseGuards(Authenticated)
   @Get('profile')
   async findMe(@User() user) {
@@ -39,6 +47,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Edit my profile' })
+  @ApiException(() => new NotFoundException('User with this id not found'))
   @UseGuards(Authenticated)
   @Patch('editProfile')
   async editProfile(@Body() dto: EditProfileDTO, @User() user) {
@@ -58,6 +67,7 @@ export class UserController {
     return new UserListDTO({ items: users, totalCount, totalPages });
   }
 
+  @ApiException(() => new NotFoundException('User with this id not found'))
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Get(':userId')
@@ -67,6 +77,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Create new user' })
+  @ApiException(() => new BadRequestException('Email is already in use'))
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Post()
@@ -76,6 +87,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Update user' })
+  @ApiException(() => new NotFoundException('User with this id not found'))
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Patch(':userId')
@@ -88,6 +100,7 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Delete user' })
+  @ApiException(() => new NotFoundException('User with this id not found'))
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Delete(':userId')

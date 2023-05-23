@@ -1,10 +1,15 @@
+import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   FileTypeValidator,
+  ForbiddenException,
   Get,
+  InternalServerErrorException,
   MaxFileSizeValidator,
+  NotFoundException,
   Param,
   ParseFilePipe,
   ParseIntPipe,
@@ -16,14 +21,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiBadRequestResponse,
-  ApiBody,
-  ApiConsumes,
-  ApiNotFoundResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Authenticated } from 'src/auth/guards/authenticated.guard';
@@ -38,6 +36,7 @@ import { UpdateShopDTO } from 'src/shop/dto/update-shop.dto';
 import { ShopService } from 'src/shop/shop.service';
 
 @ApiTags('Shops')
+@ApiException(() => InternalServerErrorException)
 @Controller('shop')
 export class ShopController {
   constructor(
@@ -56,7 +55,7 @@ export class ShopController {
   }
 
   @ApiOperation({ summary: 'Find one shop' })
-  @ApiNotFoundResponse({ description: 'Shop with this id does not exist' })
+  @ApiException(() => new NotFoundException('Shop with this id does not exist'))
   @Get(':shopId')
   async findOne(@Param('shopId', ParseIntPipe) shopId: number) {
     const shop = await this.shopService.findOne(shopId);
@@ -64,9 +63,11 @@ export class ShopController {
   }
 
   @ApiOperation({ summary: 'Add new shop' })
-  @ApiBadRequestResponse({ description: 'Provided file does not exist' })
-  @ApiBadRequestResponse({ description: 'Shop with this title already exists' })
-  @ApiBadRequestResponse({ description: 'Validation failed' })
+  @ApiException(() => new BadRequestException('Provided file does not exist'))
+  @ApiException(
+    () => new BadRequestException('Shop with this title already exists'),
+  )
+  @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Post()
@@ -81,10 +82,13 @@ export class ShopController {
     description: 'Shop logo',
     type: LogoUploadDTO,
   })
-  @ApiBadRequestResponse({
-    description:
-      'Validation failed (expected type is /image\\/(jpeg)|(png)|(svg)/)',
-  })
+  @ApiException(
+    () =>
+      new BadRequestException(
+        'Validation failed (expected type is /image\\/(jpeg)|(png)|(svg)/)',
+      ),
+  )
+  @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @UseInterceptors(FileInterceptor('file'))
@@ -107,8 +111,8 @@ export class ShopController {
   }
 
   @ApiOperation({ summary: 'Update shop' })
-  @ApiNotFoundResponse({ description: 'Shop with this id does not exist' })
-  @ApiBadRequestResponse({ description: 'Validation failed' })
+  @ApiException(() => new NotFoundException('Shop with this id does not exist'))
+  @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Patch(':shopId')
@@ -121,7 +125,8 @@ export class ShopController {
   }
 
   @ApiOperation({ summary: 'Delete shop' })
-  @ApiNotFoundResponse({ description: 'Shop with this id does not exist' })
+  @ApiException(() => new NotFoundException('Shop with this id does not exist'))
+  @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Delete(':shopId')

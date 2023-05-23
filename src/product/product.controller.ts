@@ -1,10 +1,15 @@
+import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   FileTypeValidator,
+  ForbiddenException,
   Get,
+  InternalServerErrorException,
   MaxFileSizeValidator,
+  NotFoundException,
   Param,
   ParseFilePipe,
   ParseIntPipe,
@@ -17,10 +22,8 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
-  ApiBadRequestResponse,
   ApiBody,
   ApiConsumes,
-  ApiNotFoundResponse,
   ApiOperation,
   ApiQuery,
   ApiTags,
@@ -48,6 +51,7 @@ import { UpdateProductDTO } from 'src/product/dto/update-product.dto';
 import { ProductService } from 'src/product/product.service';
 
 @ApiTags('Products')
+@ApiException(() => InternalServerErrorException)
 @Controller('product')
 export class ProductController {
   constructor(
@@ -56,7 +60,6 @@ export class ProductController {
   ) {}
 
   @ApiOperation({ summary: 'Find all products' })
-  @ApiBadRequestResponse({ description: 'Validation failed' })
   @Get('all')
   async find(@Query() filtersDTO: FindProductFiltersDTO) {
     const { products, totalCount, totalPages } = await this.productService.find(
@@ -69,9 +72,10 @@ export class ProductController {
   @ApiOperation({
     summary: 'Find all products globally - from database and from Zakaz API',
   })
-  @ApiBadRequestResponse({ description: 'Product title is required' })
-  @ApiBadRequestResponse({ description: 'Shop with this id does not exist' })
-  @ApiBadRequestResponse({ description: 'Validation failed' })
+  @ApiException(() => new BadRequestException('Product title is required'))
+  @ApiException(
+    () => new BadRequestException('Shop with this id does not exist'),
+  )
   @Get('global')
   async findGlobally(@Query() filtersDTO: FindProductFiltersDTO) {
     const { products, totalCount, totalPages } =
@@ -85,7 +89,9 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Find one product' })
-  @ApiNotFoundResponse({ description: 'Product with this id does not exist' })
+  @ApiException(
+    () => new NotFoundException('Product with this id does not exist'),
+  )
   @Get(':productId')
   async findOne(@Param('productId', ParseIntPipe) productId: number) {
     const product = await this.productService.findOne(productId);
@@ -93,10 +99,14 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Add new product' })
-  @ApiBadRequestResponse({ description: 'Provided file does not exist' })
-  @ApiBadRequestResponse({ description: 'Shop with this id does not exist' })
-  @ApiBadRequestResponse({ description: 'User with this id does not exist' })
-  @ApiBadRequestResponse({ description: 'Validation failed' })
+  @ApiException(() => new BadRequestException('Provided file does not exist'))
+  @ApiException(
+    () => new BadRequestException('Shop with this id does not exist'),
+  )
+  @ApiException(
+    () => new BadRequestException('User with this id does not exist'),
+  )
+  @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Post()
@@ -106,10 +116,14 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Create request for adding new product' })
-  @ApiBadRequestResponse({ description: 'Provided file does not exist' })
-  @ApiBadRequestResponse({ description: 'Shop with this id does not exist' })
-  @ApiBadRequestResponse({ description: 'User with this id does not exist' })
-  @ApiBadRequestResponse({ description: 'Validation failed' })
+  @ApiException(() => new BadRequestException('Provided file does not exist'))
+  @ApiException(
+    () => new BadRequestException('Shop with this id does not exist'),
+  )
+  @ApiException(
+    () => new BadRequestException('User with this id does not exist'),
+  )
+  @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Post('request')
   async createRequest(@Body() productDTO: CreateProductDTO, @User() user) {
@@ -121,6 +135,7 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Get all my pending requests' })
+  @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Get('request/my')
   async findMyRequests(@User() user) {
@@ -135,11 +150,17 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Update product' })
-  @ApiBadRequestResponse({ description: 'Product with this id does not exist' })
-  @ApiBadRequestResponse({ description: 'Provided file does not exist' })
-  @ApiBadRequestResponse({ description: 'Shop with this id does not exist' })
-  @ApiBadRequestResponse({ description: 'User with this id does not exist' })
-  @ApiBadRequestResponse({ description: 'Validation failed' })
+  @ApiException(
+    () => new BadRequestException('Product with this id does not exist'),
+  )
+  @ApiException(() => new BadRequestException('Provided file does not exist'))
+  @ApiException(
+    () => new BadRequestException('Shop with this id does not exist'),
+  )
+  @ApiException(
+    () => new BadRequestException('User with this id does not exist'),
+  )
+  @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Patch(':productId')
@@ -152,7 +173,10 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Delete product' })
-  @ApiBadRequestResponse({ description: 'Product with this id does not exist' })
+  @ApiException(
+    () => new BadRequestException('Product with this id does not exist'),
+  )
+  @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Delete(':productId')
@@ -164,10 +188,13 @@ export class ProductController {
   @ApiOperation({ summary: 'Upload product image' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ description: 'Product image', type: ImageUploadDTO })
-  @ApiBadRequestResponse({
-    description:
-      'Validation failed (expected type is /image\\/(jpeg)|(png)|(svg)/)',
-  })
+  @ApiException(
+    () =>
+      new BadRequestException(
+        'Validation failed (expected type is /image\\/(jpeg)|(png)|(svg)/)',
+      ),
+  )
+  @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @UseInterceptors(FileInterceptor('file'))
   @Post('image/upload')
@@ -189,9 +216,12 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: "Get product's price history report" })
-  @ApiBadRequestResponse({ description: 'Product with this id does not exist' })
-  @ApiBadRequestResponse({ description: 'Validation failed' })
+  @ApiException(
+    () => new BadRequestException('Product with this id does not exist'),
+  )
+  @ApiException(() => ForbiddenException)
   @ApiQuery({ name: 'option', enum: ReportOption })
+  @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Get(':productId/priceHistory')

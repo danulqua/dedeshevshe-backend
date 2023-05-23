@@ -1,22 +1,24 @@
+import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
 import {
+  BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   HttpCode,
   HttpStatus,
+  InternalServerErrorException,
+  NotFoundException,
   Patch,
   Post,
   Request,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
-  ApiBadRequestResponse,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
-  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthService } from 'src/auth/auth.service';
 import { User } from 'src/auth/decorators/user.decorator';
@@ -29,21 +31,22 @@ import { Authenticated } from 'src/auth/guards/authenticated.guard';
 import { UserAuthDTO, UserDTO } from 'src/user/dto/user.dto';
 
 @ApiTags('Auth')
+@ApiException(() => InternalServerErrorException)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: 'Sign up' })
+  @ApiException(() => new BadRequestException('Email is already in use'))
   @ApiCreatedResponse({ type: UserAuthDTO })
-  @ApiBadRequestResponse({ description: 'Email is already in use' })
   @Post('/signUp')
   signUp(@Body() dto: AuthDTO) {
     return this.authService.signUp(dto);
   }
 
   @ApiOperation({ summary: 'Sign in' })
-  @ApiNotFoundResponse({ description: 'User with this email not found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiException(() => new NotFoundException('User with this email not found'))
+  @ApiException(() => UnauthorizedException)
   @ApiOkResponse({ type: UserDTO })
   @UseGuards(AuthLocal)
   @Post('/signIn')
@@ -53,8 +56,8 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Sign out' })
+  @ApiException(() => ForbiddenException)
   @ApiOkResponse({ description: 'Signed out' })
-  @ApiForbiddenResponse({ description: 'Forbidden resource' })
   @UseGuards(Authenticated)
   @Post('/signOut')
   @HttpCode(HttpStatus.OK)
@@ -64,18 +67,18 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Reset password' })
+  @ApiException(() => new NotFoundException('User with this email not found'))
   @ApiCreatedResponse({
     description: 'Check your email for further instructions',
   })
-  @ApiNotFoundResponse({ description: 'User with this email not found' })
   @Post('/resetPassword')
   resetPassword(@Body() dto: ResetPasswordDTO) {
     return this.authService.resetPassword(dto);
   }
 
   @ApiOperation({ summary: 'Reset password token validation' })
+  @ApiException(() => new UnauthorizedException('Invalid or expired token'))
   @ApiOkResponse({ type: IsValidDTO })
-  @ApiUnauthorizedResponse({ description: 'Invalid or expired token' })
   @Post('/validateToken')
   @HttpCode(HttpStatus.OK)
   async validateToken(@Body() { token }: ValidateTokenDTO) {
@@ -84,8 +87,8 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Change password' })
+  @ApiException(() => new UnauthorizedException('Invalid or expired token'))
   @ApiOkResponse({ description: 'Password changed successfully' })
-  @ApiUnauthorizedResponse({ description: 'Invalid or expired token' })
   @Patch('/changePassword')
   async changePassword(@Body() { token, password }: ChangePasswordDTO) {
     await this.authService.changePassword(token, password);
