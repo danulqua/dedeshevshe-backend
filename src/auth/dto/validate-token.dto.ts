@@ -5,3 +5,7 @@ export class ValidateTokenDTO {
   @IsNotEmpty()
   token: string;
 }
+
+export class IsValidDTO {
+  isValid: boolean;
+}

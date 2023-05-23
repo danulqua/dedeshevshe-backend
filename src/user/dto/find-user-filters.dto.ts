@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { User, UserRole } from '@prisma/client';
 import {
   IsEnum,
@@ -26,6 +27,7 @@ export class FindUserFiltersDTO {
   @IsString()
   email?: string;
 
+  @ApiProperty({ enum: UserRole })
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;

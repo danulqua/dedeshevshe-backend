@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { ProductStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
@@ -50,6 +51,7 @@ export class CreateProductDTO {
   @IsNumber()
   weight: number | null;
 
+  @ApiProperty({ enum: ProductStatus })
   @IsOptional()
   @IsEnum(ProductStatus)
   status?: ProductStatus;

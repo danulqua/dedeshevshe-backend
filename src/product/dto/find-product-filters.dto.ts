@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Product, ProductStatus } from '@prisma/client';
 import {
   IsBoolean,
@@ -42,6 +43,7 @@ export class FindProductFiltersDTO {
   @IsBoolean()
   discountsOnly?: boolean;
 
+  @ApiProperty({ enum: ProductStatus })
   @IsOptional()
   @IsEnum(ProductStatus)
   status?: ProductStatus;

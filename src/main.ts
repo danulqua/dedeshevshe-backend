@@ -13,15 +13,6 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  const config = new DocumentBuilder()
-    .setTitle('Grocify API')
-    .setDescription('The Grocify API description')
-    .setVersion('1.0')
-    .addTag('grocify')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
-
   app.setGlobalPrefix('/api');
   app.enableCors({ origin: process.env.CLIENT_BASE_URL, credentials: true });
   app.useGlobalPipes(
@@ -53,6 +44,15 @@ async function bootstrap() {
 
   app.use(passport.initialize());
   app.use(passport.session());
+
+  const config = new DocumentBuilder()
+    .setTitle('Grocify API')
+    .setDescription('The Grocify API description')
+    .setVersion('1.0')
+    .addTag('grocify')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
 
   await app.listen(port);
 
