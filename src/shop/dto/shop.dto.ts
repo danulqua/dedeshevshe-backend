@@ -10,7 +10,6 @@ class ImageDTO {
 export class ShopDTO {
   id: number;
   title: string;
-  description: string;
   isExternal: boolean;
   imageId: number;
 

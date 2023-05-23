@@ -7,7 +7,7 @@ export class UserAuthDTO {
   name: string;
 
   @ApiProperty({ enum: UserRole })
-  role: string;
+  role: UserRole;
 }
 
 export class UserDTO {
@@ -16,8 +16,12 @@ export class UserDTO {
   name: string;
 
   @ApiProperty({ enum: UserRole })
-  role: string;
+  role: UserRole;
 
   createdAt: Date;
   updatedAt: Date;
+
+  constructor(partial: Partial<UserDTO>) {
+    Object.assign(this, partial);
+  }
 }

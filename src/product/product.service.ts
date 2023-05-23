@@ -7,6 +7,7 @@ import { PriceHistory, Prisma, Product } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductDTO } from 'src/product/dto/create-product.dto';
 import { FindProductFiltersDTO } from 'src/product/dto/find-product-filters.dto';
+import { PriceHistoryItem } from 'src/product/dto/price-history.dto';
 import { ReportOption } from 'src/product/dto/report-option.dto';
 import { UpdateProductDTO } from 'src/product/dto/update-product.dto';
 import { ShopService } from 'src/shop/shop.service';
@@ -452,11 +453,11 @@ export class ProductService {
     });
 
     const lastDate = new Date();
-    if (option === 'week') {
+    if (option === ReportOption.WEEK) {
       lastDate.setDate(lastDate.getDate() - 7);
-    } else if (option === 'month') {
+    } else if (option === ReportOption.MONTH) {
       lastDate.setMonth(lastDate.getMonth() - 1);
-    } else if (option === 'year') {
+    } else if (option === ReportOption.YEAR) {
       lastDate.setFullYear(lastDate.getFullYear() - 1);
     }
 
@@ -479,7 +480,7 @@ export class ProductService {
   }
 
   private getUniquePriceHistory(priceHistory: PriceHistory[]) {
-    const uniqueDays: Map<string, any> = new Map();
+    const uniqueDays: Map<string, PriceHistoryItem> = new Map();
 
     for (const item of priceHistory) {
       const day = item.createdAt.toISOString().slice(0, 10);

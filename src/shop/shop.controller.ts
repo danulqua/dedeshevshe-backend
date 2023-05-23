@@ -82,7 +82,8 @@ export class ShopController {
     type: LogoUploadDTO,
   })
   @ApiBadRequestResponse({
-    description: 'Validation failed (expected type is /image\\/(jpeg)|(png)/)',
+    description:
+      'Validation failed (expected type is /image\\/(jpeg)|(png)|(svg)/)',
   })
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
@@ -95,7 +96,7 @@ export class ShopController {
           // 2 mb max file size
           new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
           // only jpeg and png images
-          new FileTypeValidator({ fileType: /image\/(jpeg)|(png)/ }),
+          new FileTypeValidator({ fileType: /image\/(jpeg)|(png)|(svg)/ }),
         ],
       }),
     )

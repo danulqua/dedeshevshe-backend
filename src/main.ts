@@ -7,6 +7,7 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import { PrismaClientExceptionFilter } from 'prisma/filters/prisma-client-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ProductDTO, ProductFromZakazDTO } from 'src/product/dto/product.dto';
 
 async function bootstrap() {
   const port = process.env.PORT || 3000;
@@ -51,7 +52,9 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('Grocify')
     .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config, {
+    extraModels: [ProductDTO, ProductFromZakazDTO],
+  });
   SwaggerModule.setup('api/docs', app, document);
 
   await app.listen(port);

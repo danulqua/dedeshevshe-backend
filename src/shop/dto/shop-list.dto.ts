@@ -1,4 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Shop } from '@prisma/client';
+import { ShopDTO } from 'src/shop/dto/shop.dto';
 interface ShopListParams {
   totalCount: number;
   totalPages: number;
@@ -8,6 +10,8 @@ interface ShopListParams {
 export class ShopListDTO {
   totalCount: number;
   totalPages: number;
+
+  @ApiProperty({ type: [ShopDTO] })
   items: Shop[];
 
   constructor({ items, totalCount, totalPages }: ShopListParams) {

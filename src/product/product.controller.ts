@@ -16,6 +16,15 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiConsumes,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { User } from 'src/auth/decorators/user.decorator';
@@ -24,11 +33,21 @@ import { ImageDTO } from 'src/file/dto/file.dto';
 import { FileService } from 'src/file/file.service';
 import { CreateProductDTO } from 'src/product/dto/create-product.dto';
 import { FindProductFiltersDTO } from 'src/product/dto/find-product-filters.dto';
-import { ProductListDTO } from 'src/product/dto/product-list.dto';
-import { ReportOptionDTO } from 'src/product/dto/report-option.dto';
+import { ImageUploadDTO } from 'src/product/dto/image-upload.dto';
+import { PriceHistoryDTO } from 'src/product/dto/price-history.dto';
+import {
+  GlobalProductListDTO,
+  ProductListDTO,
+} from 'src/product/dto/product-list.dto';
+import { ProductDTO } from 'src/product/dto/product.dto';
+import {
+  ReportOption,
+  ReportOptionDTO,
+} from 'src/product/dto/report-option.dto';
 import { UpdateProductDTO } from 'src/product/dto/update-product.dto';
 import { ProductService } from 'src/product/product.service';
 
+@ApiTags('Products')
 @Controller('product')
 export class ProductController {
   constructor(
@@ -36,6 +55,8 @@ export class ProductController {
     private fileService: FileService,
   ) {}
 
+  @ApiOperation({ summary: 'Find all products' })
+  @ApiBadRequestResponse({ description: 'Validation failed' })
   @Get('all')
   async find(@Query() filtersDTO: FindProductFiltersDTO) {
     const { products, totalCount, totalPages } = await this.productService.find(
@@ -45,35 +66,61 @@ export class ProductController {
     return new ProductListDTO({ items: products, totalCount, totalPages });
   }
 
+  @ApiOperation({
+    summary: 'Find all products globally - from database and from Zakaz API',
+  })
+  @ApiBadRequestResponse({ description: 'Product title is required' })
+  @ApiBadRequestResponse({ description: 'Shop with this id does not exist' })
+  @ApiBadRequestResponse({ description: 'Validation failed' })
   @Get('global')
   async findGlobally(@Query() filtersDTO: FindProductFiltersDTO) {
     const { products, totalCount, totalPages } =
       await this.productService.findGlobally(filtersDTO);
 
-    return new ProductListDTO({ items: products, totalCount, totalPages });
-  }
-
-  @Get(':productId')
-  findOne(@Param('productId', ParseIntPipe) productId: number) {
-    return this.productService.findOne(productId);
-  }
-
-  @UseGuards(Authenticated)
-  @Roles(UserRole.ADMIN)
-  @Post()
-  create(@Body() productDTO: CreateProductDTO, @User() user) {
-    return this.productService.create(user.id, productDTO);
-  }
-
-  @UseGuards(Authenticated)
-  @Post('request')
-  createRequest(@Body() productDTO: CreateProductDTO, @User() user) {
-    return this.productService.create(user.id, {
-      ...productDTO,
-      status: 'IN_REVIEW',
+    return new GlobalProductListDTO({
+      items: products,
+      totalCount,
+      totalPages,
     });
   }
 
+  @ApiOperation({ summary: 'Find one product' })
+  @ApiNotFoundResponse({ description: 'Product with this id does not exist' })
+  @Get(':productId')
+  async findOne(@Param('productId', ParseIntPipe) productId: number) {
+    const product = await this.productService.findOne(productId);
+    return new ProductDTO(product);
+  }
+
+  @ApiOperation({ summary: 'Add new product' })
+  @ApiBadRequestResponse({ description: 'Provided file does not exist' })
+  @ApiBadRequestResponse({ description: 'Shop with this id does not exist' })
+  @ApiBadRequestResponse({ description: 'User with this id does not exist' })
+  @ApiBadRequestResponse({ description: 'Validation failed' })
+  @UseGuards(Authenticated)
+  @Roles(UserRole.ADMIN)
+  @Post()
+  async create(@Body() productDTO: CreateProductDTO, @User() user) {
+    const product = await this.productService.create(user.id, productDTO);
+    return new ProductDTO(product);
+  }
+
+  @ApiOperation({ summary: 'Create request for adding new product' })
+  @ApiBadRequestResponse({ description: 'Provided file does not exist' })
+  @ApiBadRequestResponse({ description: 'Shop with this id does not exist' })
+  @ApiBadRequestResponse({ description: 'User with this id does not exist' })
+  @ApiBadRequestResponse({ description: 'Validation failed' })
+  @UseGuards(Authenticated)
+  @Post('request')
+  async createRequest(@Body() productDTO: CreateProductDTO, @User() user) {
+    const product = await this.productService.create(user.id, {
+      ...productDTO,
+      status: 'IN_REVIEW',
+    });
+    return new ProductDTO(product);
+  }
+
+  @ApiOperation({ summary: 'Get all my pending requests' })
   @UseGuards(Authenticated)
   @Get('request/my')
   async findMyRequests(@User() user) {
@@ -87,23 +134,40 @@ export class ProductController {
     return new ProductListDTO({ items: products, totalCount, totalPages });
   }
 
+  @ApiOperation({ summary: 'Update product' })
+  @ApiBadRequestResponse({ description: 'Product with this id does not exist' })
+  @ApiBadRequestResponse({ description: 'Provided file does not exist' })
+  @ApiBadRequestResponse({ description: 'Shop with this id does not exist' })
+  @ApiBadRequestResponse({ description: 'User with this id does not exist' })
+  @ApiBadRequestResponse({ description: 'Validation failed' })
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Patch(':productId')
-  update(
+  async update(
     @Param('productId', ParseIntPipe) productId: number,
     @Body() productDTO: UpdateProductDTO,
   ) {
-    return this.productService.update(productId, productDTO);
+    const product = await this.productService.update(productId, productDTO);
+    return new ProductDTO(product);
   }
 
+  @ApiOperation({ summary: 'Delete product' })
+  @ApiBadRequestResponse({ description: 'Product with this id does not exist' })
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Delete(':productId')
-  delete(@Param('productId', ParseIntPipe) productId: number) {
-    return this.productService.delete(productId);
+  async delete(@Param('productId', ParseIntPipe) productId: number) {
+    const product = await this.productService.delete(productId);
+    return new ProductDTO(product);
   }
 
+  @ApiOperation({ summary: 'Upload product image' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ description: 'Product image', type: ImageUploadDTO })
+  @ApiBadRequestResponse({
+    description:
+      'Validation failed (expected type is /image\\/(jpeg)|(png)|(svg)/)',
+  })
   @UseGuards(Authenticated)
   @UseInterceptors(FileInterceptor('file'))
   @Post('image/upload')
@@ -124,13 +188,21 @@ export class ProductController {
     return new ImageDTO(image);
   }
 
+  @ApiOperation({ summary: "Get product's price history report" })
+  @ApiBadRequestResponse({ description: 'Product with this id does not exist' })
+  @ApiBadRequestResponse({ description: 'Validation failed' })
+  @ApiQuery({ name: 'option', enum: ReportOption })
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Get(':productId/priceHistory')
-  getPriceHistoryReport(
+  async getPriceHistoryReport(
     @Param('productId', ParseIntPipe) productId: number,
     @Query() { option }: ReportOptionDTO,
   ) {
-    return this.productService.getPriceHistoryReport(productId, option);
+    const report = await this.productService.getPriceHistoryReport(
+      productId,
+      option,
+    );
+    return new PriceHistoryDTO(report);
   }
 }
