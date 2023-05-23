@@ -25,6 +25,7 @@ import { FileService } from 'src/file/file.service';
 import { CreateProductDTO } from 'src/product/dto/create-product.dto';
 import { FindProductFiltersDTO } from 'src/product/dto/find-product-filters.dto';
 import { ProductListDTO } from 'src/product/dto/product-list.dto';
+import { ReportOptionDTO } from 'src/product/dto/report-option.dto';
 import { UpdateProductDTO } from 'src/product/dto/update-product.dto';
 import { ProductService } from 'src/product/product.service';
 
@@ -121,5 +122,15 @@ export class ProductController {
   ) {
     const image = await this.fileService.uploadFile(file);
     return new ImageDTO(image);
+  }
+
+  @UseGuards(Authenticated)
+  @Roles(UserRole.ADMIN)
+  @Get(':productId/priceHistory')
+  getPriceHistoryReport(
+    @Param('productId', ParseIntPipe) productId: number,
+    @Query() { option }: ReportOptionDTO,
+  ) {
+    return this.productService.getPriceHistoryReport(productId, option);
   }
 }

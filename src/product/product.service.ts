@@ -3,10 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, Product } from '@prisma/client';
+import { PriceHistory, Prisma, Product } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductDTO } from 'src/product/dto/create-product.dto';
 import { FindProductFiltersDTO } from 'src/product/dto/find-product-filters.dto';
+import { ReportOption } from 'src/product/dto/report-option.dto';
 import { UpdateProductDTO } from 'src/product/dto/update-product.dto';
 import { ShopService } from 'src/shop/shop.service';
 import { ZakazService } from 'src/zakaz/zakaz.service';
@@ -295,6 +296,13 @@ export class ProductService {
       }),
     ]);
 
+    await this.prismaService.priceHistory.create({
+      data: {
+        productId: product.id,
+        price: product.price,
+      },
+    });
+
     return product;
   }
 
@@ -359,6 +367,15 @@ export class ProductService {
       include: productInclude,
     });
 
+    if (updatedProduct.price !== productFromDB.price) {
+      await this.prismaService.priceHistory.create({
+        data: {
+          productId: updatedProduct.id,
+          price: updatedProduct.price,
+        },
+      });
+    }
+
     return updatedProduct;
   }
 
@@ -415,5 +432,65 @@ export class ProductService {
     });
 
     return deletedProduct;
+  }
+
+  async getPriceHistoryReport(productId: number, option: ReportOption) {
+    const productFromDB = await this.prismaService.product.findUnique({
+      where: { id: productId },
+      include: productInclude,
+    });
+
+    if (!productFromDB) {
+      throw new NotFoundException(
+        `Product with id ${productId} does not exist`,
+      );
+    }
+
+    const priceHistory = await this.prismaService.priceHistory.findMany({
+      where: { productId },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const lastDate = new Date();
+    if (option === 'week') {
+      lastDate.setDate(lastDate.getDate() - 7);
+    } else if (option === 'month') {
+      lastDate.setMonth(lastDate.getMonth() - 1);
+    } else if (option === 'year') {
+      lastDate.setFullYear(lastDate.getFullYear() - 1);
+    }
+
+    const filteredPriceHistory = priceHistory.filter(
+      (item) => new Date(item.createdAt) >= lastDate,
+    );
+
+    const uniquePriceHistory = this.getUniquePriceHistory(filteredPriceHistory);
+    return {
+      product: {
+        id: productFromDB.id,
+        title: productFromDB.title,
+      },
+      shop: {
+        id: productFromDB.shop.id,
+        title: productFromDB.shop.title,
+      },
+      priceHistory: uniquePriceHistory,
+    };
+  }
+
+  private getUniquePriceHistory(priceHistory: PriceHistory[]) {
+    const uniqueDays: Map<string, any> = new Map();
+
+    for (const item of priceHistory) {
+      const day = item.createdAt.toISOString().slice(0, 10);
+
+      if (uniqueDays.has(day)) {
+        uniqueDays.get(day).price = item.price;
+      } else {
+        uniqueDays.set(day, { createdAt: item.createdAt, price: item.price });
+      }
+    }
+
+    return Array.from(uniqueDays.values());
   }
 }
