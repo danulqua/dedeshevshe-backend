@@ -12,7 +12,7 @@ import { UpdateProductDTO } from 'src/product/dto/update-product.dto';
 import { ShopService } from 'src/shop/shop.service';
 import { ZakazService } from 'src/zakaz/zakaz.service';
 
-const productInclude: Prisma.ProductInclude = {
+const productInclude = {
   shop: {
     select: {
       id: true,
@@ -37,7 +37,7 @@ const productInclude: Prisma.ProductInclude = {
       url: true,
     },
   },
-};
+} satisfies Prisma.ProductInclude;
 
 @Injectable()
 export class ProductService {

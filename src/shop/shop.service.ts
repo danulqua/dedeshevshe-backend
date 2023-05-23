@@ -13,14 +13,14 @@ import { FindShopFiltersDTO } from 'src/shop/dto/find-shop-filters.dto';
 import { UpdateShopDTO } from 'src/shop/dto/update-shop.dto';
 import { ZakazService } from 'src/zakaz/zakaz.service';
 
-const shopInclude: Prisma.ShopInclude = {
+const shopInclude = {
   image: {
     select: {
       id: true,
       url: true,
     },
   },
-};
+} satisfies Prisma.ShopInclude;
 @Injectable()
 export class ShopService implements OnApplicationBootstrap {
   constructor(
