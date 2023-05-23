@@ -6,13 +6,13 @@ export class SearchQueryDTO {
 
   @IsOptional()
   @IsString()
-  shopId: string;
+  shopId?: string;
 
   @IsOptional()
   @IsNumber()
-  maxPrice: number;
+  maxPrice?: number;
 
   @IsOptional()
   @IsBoolean()
-  discountsOnly: boolean;
+  discountsOnly?: boolean;
 }

@@ -2,8 +2,6 @@ import * as path from 'path';
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ZakazModule } from './zakaz/zakaz.module';
 import { ShopModule } from './shop/shop.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
@@ -37,9 +35,7 @@ import { S3Module } from './s3/s3.module';
     MailModule,
     S3Module,
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,

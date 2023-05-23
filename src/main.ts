@@ -49,7 +49,7 @@ async function bootstrap() {
     .setTitle('Grocify API')
     .setDescription('The Grocify API description')
     .setVersion('1.0')
-    .addTag('grocify')
+    .addTag('Grocify')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);

@@ -4,14 +4,14 @@ export interface Shop {
 }
 
 export interface SearchProductsByShopFilters {
-  shopId: string;
-  maxPrice: number;
-  discountsOnly: boolean;
+  shopId?: string;
+  maxPrice?: number;
+  discountsOnly?: boolean;
 }
 
 export interface SearchProductsFilters {
-  maxPrice: number;
-  discountsOnly: boolean;
+  maxPrice?: number;
+  discountsOnly?: boolean;
 }
 
 export interface SearchProductsResponse {
