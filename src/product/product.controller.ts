@@ -114,7 +114,7 @@ export class ProductController {
           // 2 mb max file size
           new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
           // only jpeg and png images
-          new FileTypeValidator({ fileType: /image\/(jpeg)|(png)/ }),
+          new FileTypeValidator({ fileType: /image\/(jpeg)|(png)|(svg)/ }),
         ],
       }),
     )
