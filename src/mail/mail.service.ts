@@ -5,10 +5,7 @@ import { User } from '@prisma/client';
 
 @Injectable()
 export class MailService {
-  constructor(
-    private mailerService: MailerService,
-    private config: ConfigService,
-  ) {}
+  constructor(private mailerService: MailerService, private config: ConfigService) {}
 
   async sendResetPasswordLink(user: User, token: string) {
     const clientBaseUrl = this.config.get('CLIENT_BASE_URL');

@@ -20,13 +20,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiBody,
-  ApiConsumes,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { User } from 'src/auth/decorators/user.decorator';
@@ -95,12 +89,8 @@ export class SupermarketController {
     `,
   })
   @ApiException(() => new BadRequestException('Provided file does not exist'))
-  @ApiException(
-    () => new BadRequestException('Shop with this id does not exist'),
-  )
-  @ApiException(
-    () => new BadRequestException('User with this id does not exist'),
-  )
+  @ApiException(() => new BadRequestException('Shop with this id does not exist'))
+  @ApiException(() => new BadRequestException('User with this id does not exist'))
   @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.SUPERMARKET)
@@ -119,9 +109,7 @@ export class SupermarketController {
   })
   @Get('all')
   async find(@Query() filtersDTO: FindShopFiltersDTO) {
-    const { shops, totalCount, totalPages } = await this.shopService.find(
-      filtersDTO,
-    );
+    const { shops, totalCount, totalPages } = await this.shopService.find(filtersDTO);
 
     return new ShopListDTO({ items: shops, totalCount, totalPages });
   }
@@ -137,9 +125,7 @@ export class SupermarketController {
   @ApiBody({ description: 'Product image', type: ImageUploadDTO })
   @ApiException(
     () =>
-      new BadRequestException(
-        'Validation failed (expected type is /image\\/(jpeg)|(png)|(svg)/)',
-      ),
+      new BadRequestException('Validation failed (expected type is /image\\/(jpeg)|(png)|(svg)/)'),
   )
   @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)

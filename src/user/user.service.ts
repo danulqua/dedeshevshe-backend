@@ -1,9 +1,5 @@
 import * as bcrypt from 'bcryptjs';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDTO } from 'src/user/dto/create-user.dto';
@@ -55,8 +51,7 @@ export class UserService {
   async findByEmail(email: string) {
     const user = await this.prismaService.user.findUnique({ where: { email } });
 
-    if (!user)
-      throw new NotFoundException(`User with email '${email}' not found`);
+    if (!user) throw new NotFoundException(`User with email '${email}' not found`);
 
     return user;
   }
@@ -94,12 +89,9 @@ export class UserService {
       where: { id: userId },
     });
 
-    if (!userFromDB)
-      throw new NotFoundException(`User with id ${userId} not found`);
+    if (!userFromDB) throw new NotFoundException(`User with id ${userId} not found`);
 
-    const passwordHash = dto.password
-      ? await this.hashPassword(dto.password)
-      : undefined;
+    const passwordHash = dto.password ? await this.hashPassword(dto.password) : undefined;
 
     const { email, name, role } = dto;
     const user = await this.prismaService.user.update({
@@ -115,8 +107,7 @@ export class UserService {
       where: { id: userId },
     });
 
-    if (!userFromDB)
-      throw new NotFoundException(`User with id ${userId} not found`);
+    if (!userFromDB) throw new NotFoundException(`User with id ${userId} not found`);
 
     const user = await this.prismaService.user.delete({
       where: { id: userId },

@@ -2,13 +2,7 @@ import { Shop } from '@prisma/client';
 import { IsNumber, IsOptional, IsString, Matches } from 'class-validator';
 
 type ShopSortBy = keyof Omit<Shop, 'externalId'>;
-const shopSortBy: ShopSortBy[] = [
-  'id',
-  'title',
-  'isExternal',
-  'createdAt',
-  'updatedAt',
-];
+const shopSortBy: ShopSortBy[] = ['id', 'title', 'isExternal', 'createdAt', 'updatedAt'];
 
 export class FindShopFiltersDTO {
   @IsOptional()

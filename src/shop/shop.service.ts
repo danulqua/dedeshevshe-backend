@@ -23,10 +23,7 @@ const shopInclude = {
 } satisfies Prisma.ShopInclude;
 @Injectable()
 export class ShopService implements OnApplicationBootstrap {
-  constructor(
-    private prismaService: PrismaService,
-    private zakazService: ZakazService,
-  ) {}
+  constructor(private prismaService: PrismaService, private zakazService: ZakazService) {}
 
   private readonly logger = new Logger(ShopService.name);
 
@@ -36,12 +33,7 @@ export class ShopService implements OnApplicationBootstrap {
     const query: Prisma.ShopFindManyArgs = {
       where: {
         title: title ? { contains: title, mode: 'insensitive' } : undefined,
-        isExternal:
-          source === 'external'
-            ? true
-            : source === 'internal'
-            ? false
-            : undefined,
+        isExternal: source === 'external' ? true : source === 'internal' ? false : undefined,
       },
       include: shopInclude,
       take: limit,
@@ -69,8 +61,7 @@ export class ShopService implements OnApplicationBootstrap {
       include: shopInclude,
     });
 
-    if (!shop)
-      throw new NotFoundException(`Shop with id ${shopId} does not exist`);
+    if (!shop) throw new NotFoundException(`Shop with id ${shopId} does not exist`);
 
     return shop;
   }
@@ -83,8 +74,7 @@ export class ShopService implements OnApplicationBootstrap {
         where: { id: imageId },
       });
 
-      if (!fileToUpdate)
-        throw new BadRequestException('Provided file does not exist');
+      if (!fileToUpdate) throw new BadRequestException('Provided file does not exist');
     }
 
     const shopFromDB = await this.prismaService.shop.findUnique({
@@ -154,8 +144,7 @@ export class ShopService implements OnApplicationBootstrap {
       where: { id: newImageId },
     });
 
-    if (!fileToUpdate)
-      throw new BadRequestException('Provided file does not exist');
+    if (!fileToUpdate) throw new BadRequestException('Provided file does not exist');
 
     if (shopFromDB.imageId) {
       await this.prismaService.image.update({

@@ -34,10 +34,7 @@ export class GlobalProductListDTO {
   @ApiProperty({
     type: 'array',
     items: {
-      oneOf: [
-        { $ref: getSchemaPath(ProductDTO) },
-        { $ref: getSchemaPath(ProductFromZakazDTO) },
-      ],
+      oneOf: [{ $ref: getSchemaPath(ProductDTO) }, { $ref: getSchemaPath(ProductFromZakazDTO) }],
     },
   })
   items: (Product | ProductZakazWithShop)[];

@@ -1,10 +1,5 @@
 import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
-import {
-  Controller,
-  Get,
-  InternalServerErrorException,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, InternalServerErrorException, Query } from '@nestjs/common';
 import {
   ApiInternalServerErrorResponse,
   ApiOkResponse,

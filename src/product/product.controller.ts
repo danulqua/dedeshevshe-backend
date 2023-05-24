@@ -21,13 +21,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiBody,
-  ApiConsumes,
-  ApiOperation,
-  ApiQuery,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { User } from 'src/auth/decorators/user.decorator';
@@ -38,15 +32,9 @@ import { CreateProductDTO } from 'src/product/dto/create-product.dto';
 import { FindProductFiltersDTO } from 'src/product/dto/find-product-filters.dto';
 import { ImageUploadDTO } from 'src/product/dto/image-upload.dto';
 import { PriceHistoryDTO } from 'src/product/dto/price-history.dto';
-import {
-  GlobalProductListDTO,
-  ProductListDTO,
-} from 'src/product/dto/product-list.dto';
+import { GlobalProductListDTO, ProductListDTO } from 'src/product/dto/product-list.dto';
 import { ProductDTO } from 'src/product/dto/product.dto';
-import {
-  ReportOption,
-  ReportOptionDTO,
-} from 'src/product/dto/report-option.dto';
+import { ReportOption, ReportOptionDTO } from 'src/product/dto/report-option.dto';
 import { UpdateProductDTO } from 'src/product/dto/update-product.dto';
 import { ProductService } from 'src/product/product.service';
 
@@ -54,17 +42,12 @@ import { ProductService } from 'src/product/product.service';
 @ApiException(() => InternalServerErrorException)
 @Controller('product')
 export class ProductController {
-  constructor(
-    private productService: ProductService,
-    private fileService: FileService,
-  ) {}
+  constructor(private productService: ProductService, private fileService: FileService) {}
 
   @ApiOperation({ summary: 'Find all products' })
   @Get('all')
   async find(@Query() filtersDTO: FindProductFiltersDTO) {
-    const { products, totalCount, totalPages } = await this.productService.find(
-      filtersDTO,
-    );
+    const { products, totalCount, totalPages } = await this.productService.find(filtersDTO);
 
     return new ProductListDTO({ items: products, totalCount, totalPages });
   }
@@ -73,13 +56,10 @@ export class ProductController {
     summary: 'Find all products globally - from database and from Zakaz API',
   })
   @ApiException(() => new BadRequestException('Product title is required'))
-  @ApiException(
-    () => new BadRequestException('Shop with this id does not exist'),
-  )
+  @ApiException(() => new BadRequestException('Shop with this id does not exist'))
   @Get('global')
   async findGlobally(@Query() filtersDTO: FindProductFiltersDTO) {
-    const { products, totalCount, totalPages } =
-      await this.productService.findGlobally(filtersDTO);
+    const { products, totalCount, totalPages } = await this.productService.findGlobally(filtersDTO);
 
     return new GlobalProductListDTO({
       items: products,
@@ -89,9 +69,7 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Find one product' })
-  @ApiException(
-    () => new NotFoundException('Product with this id does not exist'),
-  )
+  @ApiException(() => new NotFoundException('Product with this id does not exist'))
   @Get(':productId')
   async findOne(@Param('productId', ParseIntPipe) productId: number) {
     const product = await this.productService.findOne(productId);
@@ -100,12 +78,8 @@ export class ProductController {
 
   @ApiOperation({ summary: 'Add new product' })
   @ApiException(() => new BadRequestException('Provided file does not exist'))
-  @ApiException(
-    () => new BadRequestException('Shop with this id does not exist'),
-  )
-  @ApiException(
-    () => new BadRequestException('User with this id does not exist'),
-  )
+  @ApiException(() => new BadRequestException('Shop with this id does not exist'))
+  @ApiException(() => new BadRequestException('User with this id does not exist'))
   @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
@@ -117,12 +91,8 @@ export class ProductController {
 
   @ApiOperation({ summary: 'Create request for adding new product' })
   @ApiException(() => new BadRequestException('Provided file does not exist'))
-  @ApiException(
-    () => new BadRequestException('Shop with this id does not exist'),
-  )
-  @ApiException(
-    () => new BadRequestException('User with this id does not exist'),
-  )
+  @ApiException(() => new BadRequestException('Shop with this id does not exist'))
+  @ApiException(() => new BadRequestException('User with this id does not exist'))
   @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Post('request')
@@ -139,27 +109,19 @@ export class ProductController {
   @UseGuards(Authenticated)
   @Get('request/my')
   async findMyRequests(@User() user) {
-    const { products, totalCount, totalPages } = await this.productService.find(
-      {
-        userId: user.id,
-        status: 'IN_REVIEW',
-      },
-    );
+    const { products, totalCount, totalPages } = await this.productService.find({
+      userId: user.id,
+      status: 'IN_REVIEW',
+    });
 
     return new ProductListDTO({ items: products, totalCount, totalPages });
   }
 
   @ApiOperation({ summary: 'Update product' })
-  @ApiException(
-    () => new BadRequestException('Product with this id does not exist'),
-  )
+  @ApiException(() => new BadRequestException('Product with this id does not exist'))
   @ApiException(() => new BadRequestException('Provided file does not exist'))
-  @ApiException(
-    () => new BadRequestException('Shop with this id does not exist'),
-  )
-  @ApiException(
-    () => new BadRequestException('User with this id does not exist'),
-  )
+  @ApiException(() => new BadRequestException('Shop with this id does not exist'))
+  @ApiException(() => new BadRequestException('User with this id does not exist'))
   @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
@@ -173,9 +135,7 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Delete product' })
-  @ApiException(
-    () => new BadRequestException('Product with this id does not exist'),
-  )
+  @ApiException(() => new BadRequestException('Product with this id does not exist'))
   @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
@@ -190,9 +150,7 @@ export class ProductController {
   @ApiBody({ description: 'Product image', type: ImageUploadDTO })
   @ApiException(
     () =>
-      new BadRequestException(
-        'Validation failed (expected type is /image\\/(jpeg)|(png)|(svg)/)',
-      ),
+      new BadRequestException('Validation failed (expected type is /image\\/(jpeg)|(png)|(svg)/)'),
   )
   @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
@@ -216,9 +174,7 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: "Get product's price history report" })
-  @ApiException(
-    () => new BadRequestException('Product with this id does not exist'),
-  )
+  @ApiException(() => new BadRequestException('Product with this id does not exist'))
   @ApiException(() => ForbiddenException)
   @ApiQuery({ name: 'option', enum: ReportOption })
   @ApiException(() => ForbiddenException)
@@ -229,10 +185,7 @@ export class ProductController {
     @Param('productId', ParseIntPipe) productId: number,
     @Query() { option }: ReportOptionDTO,
   ) {
-    const report = await this.productService.getPriceHistoryReport(
-      productId,
-      option,
-    );
+    const report = await this.productService.getPriceHistoryReport(productId, option);
     return new PriceHistoryDTO(report);
   }
 }

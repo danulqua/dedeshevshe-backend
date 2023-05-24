@@ -1,10 +1,6 @@
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
 import { Prisma } from '@prisma/client';
@@ -53,10 +49,7 @@ export class AuthService {
     const user = await this.userService.findByEmail(email);
     if (!user) return null;
 
-    const passwordsMatch = await this.verifyPasswords(
-      password,
-      user.passwordHash,
-    );
+    const passwordsMatch = await this.verifyPasswords(password, user.passwordHash);
     if (!passwordsMatch) return null;
 
     delete user.passwordHash;

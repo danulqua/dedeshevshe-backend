@@ -12,10 +12,7 @@ export class SessionSerializer extends PassportSerializer {
     done(null, { id: user.id });
   }
 
-  async deserializeUser(
-    payload: any,
-    done: (err: Error, payload: any) => void,
-  ) {
+  async deserializeUser(payload: any, done: (err: Error, payload: any) => void) {
     const user = await this.userService.findById(payload.id);
     delete user.passwordHash;
     done(null, user);

@@ -39,17 +39,12 @@ import { ShopService } from 'src/shop/shop.service';
 @ApiException(() => InternalServerErrorException)
 @Controller('shop')
 export class ShopController {
-  constructor(
-    private shopService: ShopService,
-    private fileService: FileService,
-  ) {}
+  constructor(private shopService: ShopService, private fileService: FileService) {}
 
   @ApiOperation({ summary: 'Find all shops' })
   @Get('all')
   async find(@Query() filtersDTO: FindShopFiltersDTO) {
-    const { shops, totalCount, totalPages } = await this.shopService.find(
-      filtersDTO,
-    );
+    const { shops, totalCount, totalPages } = await this.shopService.find(filtersDTO);
 
     return new ShopListDTO({ items: shops, totalCount, totalPages });
   }
@@ -64,9 +59,7 @@ export class ShopController {
 
   @ApiOperation({ summary: 'Add new shop' })
   @ApiException(() => new BadRequestException('Provided file does not exist'))
-  @ApiException(
-    () => new BadRequestException('Shop with this title already exists'),
-  )
+  @ApiException(() => new BadRequestException('Shop with this title already exists'))
   @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
@@ -84,9 +77,7 @@ export class ShopController {
   })
   @ApiException(
     () =>
-      new BadRequestException(
-        'Validation failed (expected type is /image\\/(jpeg)|(png)|(svg)/)',
-      ),
+      new BadRequestException('Validation failed (expected type is /image\\/(jpeg)|(png)|(svg)/)'),
   )
   @ApiException(() => ForbiddenException)
   @UseGuards(Authenticated)
@@ -116,10 +107,7 @@ export class ShopController {
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Patch(':shopId')
-  async update(
-    @Param('shopId', ParseIntPipe) shopId: number,
-    @Body() shopDto: UpdateShopDTO,
-  ) {
+  async update(@Param('shopId', ParseIntPipe) shopId: number, @Body() shopDto: UpdateShopDTO) {
     const shop = await this.shopService.update(shopId, shopDto);
     return new ShopDTO(shop);
   }

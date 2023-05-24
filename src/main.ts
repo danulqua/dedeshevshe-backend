@@ -68,17 +68,13 @@ async function bootstrap() {
   // Public API for supermarkets
   const supermarketsConfig = new DocumentBuilder()
     .setTitle('Grocify API для сторонніх супермаркетів')
-    .setDescription(
-      'Опис Grocify API для взаємодії сторонніх супермаркетів із Grocify',
-    )
+    .setDescription('Опис Grocify API для взаємодії сторонніх супермаркетів із Grocify')
     .setVersion('1.0')
     .addTag('Grocify')
     .build();
-  const supermarketsDocument = SwaggerModule.createDocument(
-    app,
-    supermarketsConfig,
-    { include: [SupermarketModule] },
-  );
+  const supermarketsDocument = SwaggerModule.createDocument(app, supermarketsConfig, {
+    include: [SupermarketModule],
+  });
   SwaggerModule.setup('api/supermarket', app, supermarketsDocument);
 
   await app.listen(port);

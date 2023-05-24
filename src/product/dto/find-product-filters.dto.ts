@@ -1,13 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Product, ProductStatus } from '@prisma/client';
-import {
-  IsBoolean,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Matches,
-} from 'class-validator';
+import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Matches } from 'class-validator';
 
 type ProductSortBy = keyof Omit<Product, 'url' | 'isExternal' | 'imageId'>;
 const productSortBy: ProductSortBy[] = [

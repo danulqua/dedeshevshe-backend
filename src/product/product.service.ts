@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PriceHistory, Prisma, Product } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductDTO } from 'src/product/dto/create-product.dto';
@@ -90,17 +86,9 @@ export class ProductService {
 
   // Find products both internally and externally
   async findGlobally(filtersDTO: FindProductFiltersDTO = {}) {
-    if (!filtersDTO.title)
-      throw new BadRequestException('Product title is required');
+    if (!filtersDTO.title) throw new BadRequestException('Product title is required');
 
-    const {
-      title,
-      shopId,
-      maxPrice,
-      discountsOnly,
-      limit,
-      page = 1,
-    } = filtersDTO;
+    const { title, shopId, maxPrice, discountsOnly, limit, page = 1 } = filtersDTO;
 
     const shops = await this.prismaService.shop.findMany({
       include: {
@@ -118,8 +106,7 @@ export class ProductService {
     if (shopId) {
       const shopFromDB = await this.shopService.findOne(shopId);
 
-      if (!shopFromDB)
-        throw new NotFoundException('Shop with this id does not exist');
+      if (!shopFromDB) throw new NotFoundException('Shop with this id does not exist');
 
       // If shop is external - we have to search both internally and externally
       if (shopFromDB.isExternal) {
@@ -157,9 +144,7 @@ export class ProductService {
 
         const startIndex = (page - 1) * limit;
         const endIndex = startIndex + limit;
-        const paginatedProducts = limit
-          ? products.slice(startIndex, endIndex)
-          : products;
+        const paginatedProducts = limit ? products.slice(startIndex, endIndex) : products;
 
         return { products: paginatedProducts, totalCount, totalPages };
       }
@@ -207,9 +192,7 @@ export class ProductService {
 
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
-    const paginatedProducts = limit
-      ? products.slice(startIndex, endIndex)
-      : products;
+    const paginatedProducts = limit ? products.slice(startIndex, endIndex) : products;
 
     return { products: paginatedProducts, totalCount, totalPages };
   }
@@ -220,10 +203,7 @@ export class ProductService {
       include: productInclude,
     });
 
-    if (!product)
-      throw new NotFoundException(
-        `Product with id ${productId} does not exist`,
-      );
+    if (!product) throw new NotFoundException(`Product with id ${productId} does not exist`);
 
     return product;
   }
@@ -234,8 +214,7 @@ export class ProductService {
         where: { id: productDTO.imageId },
       });
 
-      if (!fileToUpdate)
-        throw new BadRequestException('Provided file does not exist');
+      if (!fileToUpdate) throw new BadRequestException('Provided file does not exist');
     }
 
     const shopFromDB = await this.prismaService.shop.findUnique({
@@ -243,31 +222,18 @@ export class ProductService {
     });
 
     if (!shopFromDB)
-      throw new BadRequestException(
-        `Shop with id ${productDTO.shopId} does not exist`,
-      );
+      throw new BadRequestException(`Shop with id ${productDTO.shopId} does not exist`);
 
     if (userId) {
       const userFromDB = await this.prismaService.user.findUnique({
         where: { id: userId },
       });
 
-      if (!userFromDB)
-        throw new BadRequestException(`User with id ${userId} does not exist`);
+      if (!userFromDB) throw new BadRequestException(`User with id ${userId} does not exist`);
     }
 
-    const {
-      title,
-      description,
-      url,
-      price,
-      discount,
-      volume,
-      weight,
-      status,
-      shopId,
-      imageId,
-    } = productDTO;
+    const { title, description, url, price, discount, volume, weight, status, shopId, imageId } =
+      productDTO;
 
     const discountValue = discount?.value;
     const oldPrice = discount?.oldPrice;
@@ -313,9 +279,7 @@ export class ProductService {
     });
 
     if (!productFromDB) {
-      throw new NotFoundException(
-        `Product with id ${productId} does not exist`,
-      );
+      throw new NotFoundException(`Product with id ${productId} does not exist`);
     }
 
     if (productDTO.shopId) {
@@ -324,23 +288,11 @@ export class ProductService {
       });
 
       if (!shopFromDB)
-        throw new NotFoundException(
-          `Shop with id ${productDTO.shopId} does not exist`,
-        );
+        throw new NotFoundException(`Shop with id ${productDTO.shopId} does not exist`);
     }
 
-    const {
-      title,
-      description,
-      url,
-      price,
-      discount,
-      volume,
-      weight,
-      status,
-      shopId,
-      imageId,
-    } = productDTO;
+    const { title, description, url, price, discount, volume, weight, status, shopId, imageId } =
+      productDTO;
 
     if (imageId !== undefined) {
       await this.updateImage(productFromDB, imageId);
@@ -394,8 +346,7 @@ export class ProductService {
       where: { id: newImageId },
     });
 
-    if (!fileToUpdate)
-      throw new BadRequestException('Provided file does not exist');
+    if (!fileToUpdate) throw new BadRequestException('Provided file does not exist');
 
     if (productFromDB.imageId) {
       await this.prismaService.image.update({
@@ -416,9 +367,7 @@ export class ProductService {
     });
 
     if (!productFromDB) {
-      throw new NotFoundException(
-        `Product with id ${productId} does not exist`,
-      );
+      throw new NotFoundException(`Product with id ${productId} does not exist`);
     }
 
     if (productFromDB.imageId) {
@@ -442,9 +391,7 @@ export class ProductService {
     });
 
     if (!productFromDB) {
-      throw new NotFoundException(
-        `Product with id ${productId} does not exist`,
-      );
+      throw new NotFoundException(`Product with id ${productId} does not exist`);
     }
 
     const priceHistory = await this.prismaService.priceHistory.findMany({

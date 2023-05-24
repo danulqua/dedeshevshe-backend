@@ -5,10 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class SchedulerService {
-  constructor(
-    private prismaService: PrismaService,
-    private fileService: FileService,
-  ) {}
+  constructor(private prismaService: PrismaService, private fileService: FileService) {}
 
   private readonly logger = new Logger(SchedulerService.name);
 
@@ -20,9 +17,7 @@ export class SchedulerService {
       select: { key: true, url: true },
     });
 
-    const deletionPromises = files.map((item) =>
-      this.fileService.deleteFile(item.key),
-    );
+    const deletionPromises = files.map((item) => this.fileService.deleteFile(item.key));
 
     await Promise.all(deletionPromises);
     this.logger.debug('All unused files has been deleted');

@@ -60,9 +60,7 @@ export class UserController {
   @Roles(UserRole.ADMIN)
   @Get('all')
   async find(@Query() filtersDTO: FindUserFiltersDTO) {
-    const { users, totalCount, totalPages } = await this.userService.find(
-      filtersDTO,
-    );
+    const { users, totalCount, totalPages } = await this.userService.find(filtersDTO);
 
     return new UserListDTO({ items: users, totalCount, totalPages });
   }
@@ -91,10 +89,7 @@ export class UserController {
   @UseGuards(Authenticated)
   @Roles(UserRole.ADMIN)
   @Patch(':userId')
-  async update(
-    @Body() dto: UpdateUserDTO,
-    @Param('userId', ParseIntPipe) userId: number,
-  ) {
+  async update(@Body() dto: UpdateUserDTO, @Param('userId', ParseIntPipe) userId: number) {
     const user = await this.userService.update(userId, dto);
     return new UserDTO(user);
   }

@@ -60,9 +60,7 @@ export class ZakazService {
       // Create promise array where every promise is going to make request to the specific shop
       const promises = shops.map((shop) =>
         zakazApi.get<SearchProductsResponse>(
-          `stores/${shop.externalId}/products/search?q=${encodeURIComponent(
-            query,
-          )}`,
+          `stores/${shop.externalId}/products/search?q=${encodeURIComponent(query)}`,
         ),
       );
 
@@ -76,10 +74,7 @@ export class ZakazService {
           ...response.data.results
             .filter((item) => item.in_stock === true)
             .map((product) => {
-              const transformed = this.transformProduct(
-                product,
-                shops[idx].title,
-              );
+              const transformed = this.transformProduct(product, shops[idx].title);
               return transformed;
             }),
         ];
@@ -100,15 +95,11 @@ export class ZakazService {
         where: { isExternal: true },
       });
       // Find shop by query
-      const shopTitle = shops.find(
-        (item) => item.externalId === filters.shopId,
-      ).title;
+      const shopTitle = shops.find((item) => item.externalId === filters.shopId).title;
 
       // Make request to the specific shop
       const response = await zakazApi.get<SearchProductsResponse>(
-        `stores/${filters.shopId}/products/search?q=${encodeURIComponent(
-          query,
-        )}`,
+        `stores/${filters.shopId}/products/search?q=${encodeURIComponent(query)}`,
       );
 
       const { data } = response;
@@ -127,10 +118,7 @@ export class ZakazService {
   }
 
   // Transform product item in order to get rid of unnecessary properties
-  private transformProduct(
-    product: ProductResponse,
-    shopTitle: string,
-  ): ProductZakaz {
+  private transformProduct(product: ProductResponse, shopTitle: string): ProductZakaz {
     return {
       ean: product.ean,
       title: product.title,
@@ -153,10 +141,7 @@ export class ZakazService {
   // Filter array with user filters
   private filterResults(
     data: ProductZakaz[],
-    {
-      maxPrice,
-      discountsOnly,
-    }: Pick<SearchProductsByShopFilters, 'maxPrice' | 'discountsOnly'>,
+    { maxPrice, discountsOnly }: Pick<SearchProductsByShopFilters, 'maxPrice' | 'discountsOnly'>,
   ) {
     let filteredData = data;
 

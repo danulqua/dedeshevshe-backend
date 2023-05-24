@@ -1,22 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User, UserRole } from '@prisma/client';
-import {
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Matches,
-} from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, Matches } from 'class-validator';
 
 type UserSortBy = keyof Omit<User, 'passwordHash'>;
-const userSortBy: UserSortBy[] = [
-  'id',
-  'name',
-  'email',
-  'role',
-  'createdAt',
-  'updatedAt',
-];
+const userSortBy: UserSortBy[] = ['id', 'name', 'email', 'role', 'createdAt', 'updatedAt'];
 
 export class FindUserFiltersDTO {
   @IsOptional()
