@@ -23,7 +23,7 @@ import { SupermarketModule } from './supermarket/supermarket.module';
       rootPath: path.resolve(__dirname, '..', 'static', 'uploads'),
       serveRoot: '/static/uploads',
     }),
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ envFilePath: `.env.${process.env.NODE_ENV}`, isGlobal: true }),
     ScheduleModule.forRoot(),
     PrismaModule,
     ZakazModule,
