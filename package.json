@@ -1,10 +1,12 @@
 {
-  "name": "grocify-backend",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "name": "dedeshevshe-backend",
+  "description": "DeDeshevshe - app for grocery price monitoring in different supermarkets",
+  "author": {
+    "name": "Danylo Zalizchuk",
+    "email": "danilmail0110@gmail.com"
+  },
+  "version": "1.0.0",
   "private": true,
-  "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
