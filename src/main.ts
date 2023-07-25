@@ -20,7 +20,6 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('/api');
   app.enableCors({ origin: process.env.CLIENT_BASE_URL, credentials: true });
   app.useGlobalPipes(
     new ValidationPipe({
@@ -64,7 +63,7 @@ async function bootstrap() {
     extraModels: [ProductDTO, ProductFromZakazDTO],
     include: [ZakazModule, ProductModule, ShopModule, AuthModule, UserModule],
   });
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('docs', app, document);
 
   // Public API for supermarkets
   const supermarketsConfig = new DocumentBuilder()
@@ -76,7 +75,7 @@ async function bootstrap() {
   const supermarketsDocument = SwaggerModule.createDocument(app, supermarketsConfig, {
     include: [SupermarketModule],
   });
-  SwaggerModule.setup('api/supermarket', app, supermarketsDocument);
+  SwaggerModule.setup('supermarket', app, supermarketsDocument);
 
   await app.listen(port);
 
