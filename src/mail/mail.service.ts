@@ -13,7 +13,7 @@ export class MailService {
 
     await this.mailerService.sendMail({
       to: user.email,
-      subject: '[Grocify] Підтвердження скидання паролю',
+      subject: '[ДеДешевше] Підтвердження скидання паролю',
       template: 'reset-password',
       context: {
         name: user.name,

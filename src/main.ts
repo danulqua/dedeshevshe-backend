@@ -54,10 +54,10 @@ async function bootstrap() {
 
   // Full API documentation
   const config = new DocumentBuilder()
-    .setTitle('Grocify API')
-    .setDescription('The Grocify API description')
+    .setTitle('DeDeshevshe API')
+    .setDescription('The DeDeshevshe API description')
     .setVersion('1.0')
-    .addTag('Grocify')
+    .addTag('DeDeshevshe')
     .build();
   const document = SwaggerModule.createDocument(app, config, {
     extraModels: [ProductDTO, ProductFromZakazDTO],
@@ -67,10 +67,10 @@ async function bootstrap() {
 
   // Public API for supermarkets
   const supermarketsConfig = new DocumentBuilder()
-    .setTitle('Grocify API для сторонніх супермаркетів')
-    .setDescription('Опис Grocify API для взаємодії сторонніх супермаркетів із Grocify')
+    .setTitle('ДеДешевше API для сторонніх супермаркетів')
+    .setDescription('Опис ДеДешевше API для взаємодії сторонніх супермаркетів із ДеДешевше')
     .setVersion('1.0')
-    .addTag('Grocify')
+    .addTag('ДеДешевше')
     .build();
   const supermarketsDocument = SwaggerModule.createDocument(app, supermarketsConfig, {
     include: [SupermarketModule],

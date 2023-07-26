@@ -18,7 +18,7 @@ import { ConfigService } from '@nestjs/config';
           },
         },
         defaults: {
-          from: `"Grocify" <${config.get('MAIL_FROM')}>`,
+          from: `"ДеДешевше" <${config.get('MAIL_FROM')}>`,
         },
         template: {
           dir: join(__dirname, 'templates'),

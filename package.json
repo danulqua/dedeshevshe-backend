@@ -11,7 +11,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "docker:up": "docker compose up -d",
-    "docker:down": "docker container kill grocify-db",
+    "docker:down": "docker container kill dedeshevshe-db",
     "start": "cross-env NODE_ENV=production nest start",
     "start:dev": "npm run docker:up && cross-env NODE_ENV=development nest start --watch",
     "start:dev:local": "npm run docker:up && npm run start:dev",
