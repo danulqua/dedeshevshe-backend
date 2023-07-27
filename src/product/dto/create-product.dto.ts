@@ -9,7 +9,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { IsNullable } from 'src/utils/validators/is-nullable';
+import { IsNullable } from '../../utils/validators/is-nullable';
 
 class Discount {
   @IsNumber()

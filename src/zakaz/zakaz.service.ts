@@ -1,15 +1,15 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { zakazApi } from 'src/zakaz/api';
-import { capitalize } from 'src/utils';
+import { zakazApi } from './api';
+import { capitalize } from '../utils';
 import {
   ProductResponse,
   SearchProductsFilters,
   SearchProductsByShopFilters,
   SearchProductsResponse,
   Shop,
-} from 'src/zakaz/api/types';
-import { ProductZakaz } from 'src/zakaz/types';
-import { PrismaService } from 'src/prisma/prisma.service';
+} from './api/types';
+import { ProductZakaz } from './types';
+import { PrismaService } from '../prisma/prisma.service';
 
 interface SearchProductsParams {
   query: string;

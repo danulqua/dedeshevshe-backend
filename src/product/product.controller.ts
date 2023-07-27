@@ -23,20 +23,20 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { User } from 'src/auth/decorators/user.decorator';
-import { Authenticated } from 'src/auth/guards/authenticated.guard';
-import { ImageDTO } from 'src/file/dto/file.dto';
-import { FileService } from 'src/file/file.service';
-import { CreateProductDTO } from 'src/product/dto/create-product.dto';
-import { FindProductFiltersDTO } from 'src/product/dto/find-product-filters.dto';
-import { ImageUploadDTO } from 'src/product/dto/image-upload.dto';
-import { PriceHistoryDTO } from 'src/product/dto/price-history.dto';
-import { GlobalProductListDTO, ProductListDTO } from 'src/product/dto/product-list.dto';
-import { ProductDTO } from 'src/product/dto/product.dto';
-import { ReportOption, ReportOptionDTO } from 'src/product/dto/report-option.dto';
-import { UpdateProductDTO } from 'src/product/dto/update-product.dto';
-import { ProductService } from 'src/product/product.service';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { User } from '../auth/decorators/user.decorator';
+import { Authenticated } from '../auth/guards/authenticated.guard';
+import { ImageDTO } from '../file/dto/file.dto';
+import { FileService } from '../file/file.service';
+import { CreateProductDTO } from './dto/create-product.dto';
+import { FindProductFiltersDTO } from './dto/find-product-filters.dto';
+import { ImageUploadDTO } from './dto/image-upload.dto';
+import { PriceHistoryDTO } from './dto/price-history.dto';
+import { GlobalProductListDTO, ProductListDTO } from './dto/product-list.dto';
+import { ProductDTO } from './dto/product.dto';
+import { ReportOption, ReportOptionDTO } from './dto/report-option.dto';
+import { UpdateProductDTO } from './dto/update-product.dto';
+import { ProductService } from './product.service';
 
 @ApiTags('Products')
 @ApiException(() => InternalServerErrorException)

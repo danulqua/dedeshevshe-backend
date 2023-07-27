@@ -5,15 +5,15 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaSessionStore } from '@quixo3/prisma-session-store';
 import * as session from 'express-session';
 import * as passport from 'passport';
-import { PrismaClientExceptionFilter } from 'prisma/filters/prisma-client-exception.filter';
+import { PrismaClientExceptionFilter } from '../prisma/filters/prisma-client-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ProductDTO, ProductFromZakazDTO } from 'src/product/dto/product.dto';
-import { ShopModule } from 'src/shop/shop.module';
-import { ZakazModule } from 'src/zakaz/zakaz.module';
-import { ProductModule } from 'src/product/product.module';
-import { UserModule } from 'src/user/user.module';
-import { AuthModule } from 'src/auth/auth.module';
-import { SupermarketModule } from 'src/supermarket/supermarket.module';
+import { ProductDTO, ProductFromZakazDTO } from './product/dto/product.dto';
+import { ShopModule } from './shop/shop.module';
+import { ZakazModule } from './zakaz/zakaz.module';
+import { ProductModule } from './product/product.module';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
+import { SupermarketModule } from './supermarket/supermarket.module';
 
 async function bootstrap() {
   const port = process.env.PORT || 3000;

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SchedulerService } from './scheduler.service';
-import { FileModule } from 'src/file/file.module';
+import { FileModule } from '../file/file.module';
 
 // Scheduler Module
 @Module({

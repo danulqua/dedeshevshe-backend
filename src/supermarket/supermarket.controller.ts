@@ -22,21 +22,21 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { User } from 'src/auth/decorators/user.decorator';
-import { AuthDTO } from 'src/auth/dto/auth.dto';
-import { AuthLocal } from 'src/auth/guards/auth-local.guard';
-import { Authenticated } from 'src/auth/guards/authenticated.guard';
-import { ImageDTO } from 'src/file/dto/file.dto';
-import { FileService } from 'src/file/file.service';
-import { CreateProductDTO } from 'src/product/dto/create-product.dto';
-import { ImageUploadDTO } from 'src/product/dto/image-upload.dto';
-import { ProductDTO } from 'src/product/dto/product.dto';
-import { ProductService } from 'src/product/product.service';
-import { FindShopFiltersDTO } from 'src/shop/dto/find-shop-filters.dto';
-import { ShopListDTO } from 'src/shop/dto/shop-list.dto';
-import { ShopService } from 'src/shop/shop.service';
-import { UserDTO } from 'src/user/dto/user.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { User } from '../auth/decorators/user.decorator';
+import { AuthDTO } from '../auth/dto/auth.dto';
+import { AuthLocal } from '../auth/guards/auth-local.guard';
+import { Authenticated } from '../auth/guards/authenticated.guard';
+import { ImageDTO } from '../file/dto/file.dto';
+import { FileService } from '../file/file.service';
+import { CreateProductDTO } from '../product/dto/create-product.dto';
+import { ImageUploadDTO } from '../product/dto/image-upload.dto';
+import { ProductDTO } from '../product/dto/product.dto';
+import { ProductService } from '../product/product.service';
+import { FindShopFiltersDTO } from '../shop/dto/find-shop-filters.dto';
+import { ShopListDTO } from '../shop/dto/shop-list.dto';
+import { ShopService } from '../shop/shop.service';
+import { UserDTO } from '../user/dto/user.dto';
 
 @ApiTags('Для супермаркетів')
 @Controller('supermarket')

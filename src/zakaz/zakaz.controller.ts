@@ -6,11 +6,11 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ProductZakazListDTO } from 'src/zakaz/dto/product-zakaz.dto';
-import { SearchQueryDTO } from 'src/zakaz/dto/search-query.dto';
-import { ShopZakazListDTO } from 'src/zakaz/dto/shop-zakaz.dto';
-import { ProductZakaz } from 'src/zakaz/types';
-import { ZakazService } from 'src/zakaz/zakaz.service';
+import { ProductZakazListDTO } from './dto/product-zakaz.dto';
+import { SearchQueryDTO } from './dto/search-query.dto';
+import { ShopZakazListDTO } from './dto/shop-zakaz.dto';
+import { ProductZakaz } from './types';
+import { ZakazService } from './zakaz.service';
 
 @ApiTags('Zakaz API')
 @ApiException(() => InternalServerErrorException)

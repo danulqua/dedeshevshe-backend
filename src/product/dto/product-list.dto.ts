@@ -1,7 +1,7 @@
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { Product } from '@prisma/client';
-import { ProductDTO, ProductFromZakazDTO } from 'src/product/dto/product.dto';
-import { ProductZakazWithShop } from 'src/zakaz/types';
+import { ProductDTO, ProductFromZakazDTO } from './product.dto';
+import { ProductZakazWithShop } from '../../zakaz/types';
 
 interface ProductListParams {
   totalCount: number;

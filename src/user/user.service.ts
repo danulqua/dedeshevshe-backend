@@ -1,10 +1,10 @@
 import * as bcrypt from 'bcryptjs';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateUserDTO } from 'src/user/dto/create-user.dto';
-import { UpdateUserDTO } from 'src/user/dto/update-user.dto';
-import { FindUserFiltersDTO } from 'src/user/dto/find-user-filters.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateUserDTO } from './dto/create-user.dto';
+import { UpdateUserDTO } from './dto/update-user.dto';
+import { FindUserFiltersDTO } from './dto/find-user-filters.dto';
 
 const userSelect: Prisma.UserSelect = {
   id: true,

@@ -17,16 +17,16 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { User } from 'src/auth/decorators/user.decorator';
-import { Authenticated } from 'src/auth/guards/authenticated.guard';
-import { CreateUserDTO } from 'src/user/dto/create-user.dto';
-import { EditProfileDTO } from 'src/user/dto/edit-profile.dto';
-import { FindUserFiltersDTO } from 'src/user/dto/find-user-filters.dto';
-import { UpdateUserDTO } from 'src/user/dto/update-user.dto';
-import { UserListDTO } from 'src/user/dto/user-list.dto';
-import { UserDTO } from 'src/user/dto/user.dto';
-import { UserService } from 'src/user/user.service';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { User } from '../auth/decorators/user.decorator';
+import { Authenticated } from '../auth/guards/authenticated.guard';
+import { CreateUserDTO } from './dto/create-user.dto';
+import { EditProfileDTO } from './dto/edit-profile.dto';
+import { FindUserFiltersDTO } from './dto/find-user-filters.dto';
+import { UpdateUserDTO } from './dto/update-user.dto';
+import { UserListDTO } from './dto/user-list.dto';
+import { UserDTO } from './dto/user.dto';
+import { UserService } from './user.service';
 
 @ApiTags('Users')
 @ApiException(() => InternalServerErrorException)

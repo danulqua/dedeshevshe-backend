@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '@prisma/client';
-import { UserDTO } from 'src/user/dto/user.dto';
+import { UserDTO } from './user.dto';
 
 interface UserListParams {
   totalCount: number;

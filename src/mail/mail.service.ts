@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
-import { resetPasswordHTML } from 'src/mail/templates/reset-password.template';
+import { resetPasswordHTML } from './templates/reset-password.template';
 
 @Injectable()
 export class MailService {

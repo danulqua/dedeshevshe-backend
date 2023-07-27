@@ -1,13 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PriceHistory, Prisma, Product } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateProductDTO } from 'src/product/dto/create-product.dto';
-import { FindProductFiltersDTO } from 'src/product/dto/find-product-filters.dto';
-import { PriceHistoryItem } from 'src/product/dto/price-history.dto';
-import { ReportOption } from 'src/product/dto/report-option.dto';
-import { UpdateProductDTO } from 'src/product/dto/update-product.dto';
-import { ShopService } from 'src/shop/shop.service';
-import { ZakazService } from 'src/zakaz/zakaz.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateProductDTO } from './dto/create-product.dto';
+import { FindProductFiltersDTO } from './dto/find-product-filters.dto';
+import { PriceHistoryItem } from './dto/price-history.dto';
+import { ReportOption } from './dto/report-option.dto';
+import { UpdateProductDTO } from './dto/update-product.dto';
+import { ShopService } from '../shop/shop.service';
+import { ZakazService } from '../zakaz/zakaz.service';
 
 const productInclude = {
   shop: {

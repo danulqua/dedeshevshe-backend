@@ -1,11 +1,11 @@
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { UserService } from 'src/user/user.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { UserService } from '../user/user.service';
 import { Prisma } from '@prisma/client';
-import { ResetPasswordDTO } from 'src/auth/dto/reset-password.dto';
-import { MailService } from 'src/mail/mail.service';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
+import { MailService } from '../mail/mail.service';
 
 interface AuthParams {
   email: string;

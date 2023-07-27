@@ -23,17 +23,17 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { Authenticated } from 'src/auth/guards/authenticated.guard';
-import { ImageDTO } from 'src/file/dto/file.dto';
-import { FileService } from 'src/file/file.service';
-import { CreateShopDTO } from 'src/shop/dto/create-shop.dto';
-import { FindShopFiltersDTO } from 'src/shop/dto/find-shop-filters.dto';
-import { LogoUploadDTO } from 'src/shop/dto/logo-upload.dto';
-import { ShopListDTO } from 'src/shop/dto/shop-list.dto';
-import { ShopDTO } from 'src/shop/dto/shop.dto';
-import { UpdateShopDTO } from 'src/shop/dto/update-shop.dto';
-import { ShopService } from 'src/shop/shop.service';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Authenticated } from '../auth/guards/authenticated.guard';
+import { ImageDTO } from '../file/dto/file.dto';
+import { FileService } from '../file/file.service';
+import { CreateShopDTO } from './dto/create-shop.dto';
+import { FindShopFiltersDTO } from './dto/find-shop-filters.dto';
+import { LogoUploadDTO } from './dto/logo-upload.dto';
+import { ShopListDTO } from './dto/shop-list.dto';
+import { ShopDTO } from './dto/shop.dto';
+import { UpdateShopDTO } from './dto/update-shop.dto';
+import { ShopService } from './shop.service';
 
 @ApiTags('Shops')
 @ApiException(() => InternalServerErrorException)

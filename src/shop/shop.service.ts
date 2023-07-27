@@ -7,11 +7,11 @@ import {
   OnApplicationBootstrap,
 } from '@nestjs/common';
 import { Prisma, Shop } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateShopDTO } from 'src/shop/dto/create-shop.dto';
-import { FindShopFiltersDTO } from 'src/shop/dto/find-shop-filters.dto';
-import { UpdateShopDTO } from 'src/shop/dto/update-shop.dto';
-import { ZakazService } from 'src/zakaz/zakaz.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateShopDTO } from './dto/create-shop.dto';
+import { FindShopFiltersDTO } from './dto/find-shop-filters.dto';
+import { UpdateShopDTO } from './dto/update-shop.dto';
+import { ZakazService } from '../zakaz/zakaz.service';
 
 const shopInclude = {
   image: {

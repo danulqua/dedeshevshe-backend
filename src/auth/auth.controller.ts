@@ -15,15 +15,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { AuthService } from 'src/auth/auth.service';
-import { User } from 'src/auth/decorators/user.decorator';
-import { AuthDTO } from 'src/auth/dto/auth.dto';
-import { ChangePasswordDTO } from 'src/auth/dto/change-password.dto';
-import { ResetPasswordDTO } from 'src/auth/dto/reset-password.dto';
-import { IsValidDTO, ValidateTokenDTO } from 'src/auth/dto/validate-token.dto';
-import { AuthLocal } from 'src/auth/guards/auth-local.guard';
-import { Authenticated } from 'src/auth/guards/authenticated.guard';
-import { UserAuthDTO, UserDTO } from 'src/user/dto/user.dto';
+import { AuthService } from './auth.service';
+import { User } from './decorators/user.decorator';
+import { AuthDTO } from './dto/auth.dto';
+import { ChangePasswordDTO } from './dto/change-password.dto';
+import { ResetPasswordDTO } from './dto/reset-password.dto';
+import { IsValidDTO, ValidateTokenDTO } from './dto/validate-token.dto';
+import { AuthLocal } from './guards/auth-local.guard';
+import { Authenticated } from './guards/authenticated.guard';
+import { UserAuthDTO, UserDTO } from '../user/dto/user.dto';
 
 @ApiTags('Auth')
 @ApiException(() => InternalServerErrorException)
