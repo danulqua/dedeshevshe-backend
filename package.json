@@ -10,7 +10,7 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "docker:up": "docker compose up -d",
+    "docker:up": "docker-compose up -d",
     "docker:down": "docker container kill dedeshevshe-db",
     "start": "cross-env NODE_ENV=production nest start",
     "start:dev": "cross-env NODE_ENV=development nest start --watch",
