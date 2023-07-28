@@ -4,7 +4,10 @@ import { S3Service } from '../s3/s3.service';
 
 @Injectable()
 export class FileService {
-  constructor(private prisma: PrismaService, private s3Service: S3Service) {}
+  constructor(
+    private prisma: PrismaService,
+    private s3Service: S3Service,
+  ) {}
 
   async uploadFile(file: Express.Multer.File) {
     const uploadedFile = await this.s3Service.uploadFile(file);

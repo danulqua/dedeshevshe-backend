@@ -42,7 +42,10 @@ import { ProductService } from './product.service';
 @ApiException(() => InternalServerErrorException)
 @Controller('product')
 export class ProductController {
-  constructor(private productService: ProductService, private fileService: FileService) {}
+  constructor(
+    private productService: ProductService,
+    private fileService: FileService,
+  ) {}
 
   @ApiOperation({ summary: 'Find all products' })
   @Get('all')

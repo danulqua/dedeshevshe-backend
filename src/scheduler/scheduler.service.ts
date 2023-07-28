@@ -5,7 +5,10 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class SchedulerService {
-  constructor(private prismaService: PrismaService, private fileService: FileService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private fileService: FileService,
+  ) {}
 
   private readonly logger = new Logger(SchedulerService.name);
 

@@ -39,7 +39,10 @@ import { ShopService } from './shop.service';
 @ApiException(() => InternalServerErrorException)
 @Controller('shop')
 export class ShopController {
-  constructor(private shopService: ShopService, private fileService: FileService) {}
+  constructor(
+    private shopService: ShopService,
+    private fileService: FileService,
+  ) {}
 
   @ApiOperation({ summary: 'Find all shops' })
   @Get('all')
