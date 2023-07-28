@@ -23,7 +23,10 @@ const shopInclude = {
 } satisfies Prisma.ShopInclude;
 @Injectable()
 export class ShopService implements OnApplicationBootstrap {
-  constructor(private prismaService: PrismaService, private zakazService: ZakazService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private zakazService: ZakazService,
+  ) {}
 
   private readonly logger = new Logger(ShopService.name);
 

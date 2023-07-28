@@ -1,11 +1,6 @@
 import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
 import { Controller, Get, InternalServerErrorException, Query } from '@nestjs/common';
-import {
-  ApiInternalServerErrorResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProductZakazListDTO } from './dto/product-zakaz.dto';
 import { SearchQueryDTO } from './dto/search-query.dto';
 import { ShopZakazListDTO } from './dto/shop-zakaz.dto';
