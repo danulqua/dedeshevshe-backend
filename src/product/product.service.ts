@@ -110,7 +110,12 @@ export class ProductService {
 
       // If shop is external - we have to search both internally and externally
       if (shopFromDB.isExternal) {
-        const internalPromise = this.find({ ...filtersDTO, status: 'ACTIVE' });
+        const internalPromise = this.find({
+          ...filtersDTO,
+          limit: undefined,
+          page: undefined,
+          status: 'ACTIVE',
+        });
         const externalPromise = this.zakazService.getProductsByShop({
           query: title,
           filters: { shopId: shopFromDB.externalId, maxPrice, discountsOnly },
@@ -155,7 +160,12 @@ export class ProductService {
     }
 
     // shopId is not provided - we have to search both internally and externally
-    const internalPromise = this.find({ ...filtersDTO, status: 'ACTIVE' });
+    const internalPromise = this.find({
+      ...filtersDTO,
+      page: undefined,
+      limit: undefined,
+      status: 'ACTIVE',
+    });
     const externalPromise = this.zakazService.getProducts({
       query: title,
       filters: {
