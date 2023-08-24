@@ -17,7 +17,7 @@
     "start:dev:local": "pnpm docker:up && pnpm start:dev",
     "start:debug": "nest start --debug --watch",
     "start:debug:local": "pnpm docker:up && pnpm start:debug",
-    "start:prod": "node dist/main",
+    "start:prod": "dotenv -e .env.production -- cross-env NODE_ENV=production node dist/src/main",
     "prisma:studio:dev": "dotenv -e .env.development -- prisma studio",
     "prisma:studio:prod": "dotenv -e .env.production -- prisma studio",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
