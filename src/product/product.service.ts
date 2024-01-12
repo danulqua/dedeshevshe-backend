@@ -159,52 +159,57 @@ export class ProductService {
       return result;
     }
 
-    // shopId is not provided - we have to search both internally and externally
-    const internalPromise = this.find({
-      ...filtersDTO,
-      page: undefined,
-      limit: undefined,
-      status: 'ACTIVE',
-    });
-    const externalPromise = this.zakazService.getProducts({
-      query: title,
-      filters: {
-        maxPrice: filtersDTO.maxPrice,
-        discountsOnly: filtersDTO.discountsOnly,
-      },
-    });
+    try {
+      // shopId is not provided - we have to search both internally and externally
+      const internalPromise = this.find({
+        ...filtersDTO,
+        page: undefined,
+        limit: undefined,
+        status: 'ACTIVE',
+      });
+      const externalPromise = this.zakazService.getProducts({
+        query: title,
+        filters: {
+          maxPrice: filtersDTO.maxPrice,
+          discountsOnly: filtersDTO.discountsOnly,
+        },
+      });
 
-    const [internalProducts, externalProducts] = await Promise.all([
-      internalPromise,
-      externalPromise,
-    ]);
+      const [internalProducts, externalProducts] = await Promise.all([
+        internalPromise,
+        externalPromise,
+      ]);
 
-    // Sort products by price in ascending order
-    const products = [
-      ...internalProducts.products,
-      ...externalProducts.map((p) => {
-        const shop = shops.find((s) => p.shop === s.title);
-        return {
-          ...p,
-          isExternal: true,
-          shop: {
-            id: shop.id,
-            title: shop.title,
-            image: shop?.image,
-          },
-        };
-      }),
-    ].sort((a, b) => a.price - b.price);
+      // Sort products by price in ascending order
+      const products = [
+        ...internalProducts.products,
+        ...externalProducts.map((p) => {
+          const shop = shops.find((s) => p.shop === s.title);
+          return {
+            ...p,
+            isExternal: true,
+            shop: {
+              id: shop.id,
+              title: shop.title,
+              image: shop?.image,
+            },
+          };
+        }),
+      ].sort((a, b) => a.price - b.price);
 
-    // Paginate products
-    const totalCount = products.length;
-    const totalPages = totalCount ? Math.ceil(totalCount / limit) || 1 : 0;
+      // Paginate products
+      const totalCount = products.length;
+      const totalPages = totalCount ? Math.ceil(totalCount / limit) || 1 : 0;
 
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedProducts = limit ? products.slice(startIndex, endIndex) : products;
+      const startIndex = (page - 1) * limit;
+      const endIndex = startIndex + limit;
+      const paginatedProducts = limit ? products.slice(startIndex, endIndex) : products;
 
-    return { products: paginatedProducts, totalCount, totalPages };
+      return { products: paginatedProducts, totalCount, totalPages };
+    } catch (e) {
+      console.error(e);
+      return e;
+    }
   }
 
   async findOne(productId: number) {
