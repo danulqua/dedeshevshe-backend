@@ -44,6 +44,7 @@ export class ZakazService {
 
       return shops;
     } catch (err) {
+      console.error(err);
       throw new InternalServerErrorException();
     }
   }
@@ -84,6 +85,7 @@ export class ZakazService {
       resultsArray = this.filterResults(resultsArray, filters);
       return resultsArray;
     } catch (err) {
+      console.error(err);
       throw new InternalServerErrorException();
     }
   }
@@ -113,6 +115,7 @@ export class ZakazService {
       const filteredResults = this.filterResults(resultsArray, filters);
       return filteredResults;
     } catch (err) {
+      console.error(err);
       throw new InternalServerErrorException();
     }
   }
