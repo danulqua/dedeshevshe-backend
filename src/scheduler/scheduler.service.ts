@@ -20,17 +20,44 @@ export class SchedulerService {
   @Cron(CronExpression.EVERY_WEEKEND)
   async refetchShops() {
     // Fetch shops from Zakaz API and current external shops
-    const [newExternalShops, { shops: currentExternalShops }] = await Promise.all([
+    const [newExternalShops, { shops: currentExternalShops }, products] = await Promise.all([
       this.zakazService.getShops(),
       this.shopService.find({ source: 'external' }),
+      this.prismaService.product.findMany({
+        where: {
+          shop: {
+            isExternal: true,
+          },
+        },
+        include: {
+          shop: true,
+        },
+      }),
     ]);
 
-    const shopsToImages: Record<string, number> = {};
+    const externalShopIds = currentExternalShops.map((shop) => shop.externalId);
+    const filteredProducts = products.filter((product) =>
+      externalShopIds.includes(product.shop.externalId),
+    );
 
-    // Delete all external shops and save their images
+    const shopsToImages = new Map<string, number>();
+    const productsToShops = new Map<number, string>();
+
+    // Delete all external shops
     await Promise.all(
       currentExternalShops.map((shop) => {
-        shopsToImages[shop.externalId] = shop.imageId;
+        // Save shop images
+        shopsToImages.set(shop.externalId, shop.imageId);
+
+        const product = filteredProducts.find(
+          (product) => product.shop.externalId === shop.externalId,
+        );
+
+        // Save shop products
+        if (product) {
+          productsToShops.set(product.id, shop.externalId);
+        }
+
         return this.shopService.delete(shop.id);
       }),
     );
@@ -38,8 +65,18 @@ export class SchedulerService {
     // Add external shops
     await Promise.all(
       newExternalShops.map(({ id, title }) => {
-        const imageId = shopsToImages[id];
+        const imageId = shopsToImages.get(id);
         return this.shopService.create({ title, imageId, isExternal: true, externalId: id });
+      }),
+    );
+
+    await Promise.all(
+      filteredProducts.map((product) => {
+        const externalId = productsToShops.get(product.id);
+        return this.prismaService.product.update({
+          where: { id: product.id },
+          data: { shop: { connect: { externalId } } },
+        });
       }),
     );
 

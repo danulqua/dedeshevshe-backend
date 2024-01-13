@@ -57,8 +57,8 @@ model Product {
   user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId Int?
 
-  shop   Shop @relation(fields: [shopId], references: [id], onDelete: Restrict)
-  shopId Int
+  shop   Shop? @relation(fields: [shopId], references: [id], onDelete: SetNull)
+  shopId Int?
 
   image   Image @relation(fields: [imageId], references: [id])
   imageId Int   @unique
