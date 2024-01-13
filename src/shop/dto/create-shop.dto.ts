@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateShopDTO {
   @IsString()
@@ -8,4 +8,12 @@ export class CreateShopDTO {
   @IsOptional()
   @IsNumber()
   imageId?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  isExternal?: boolean;
+
+  @IsOptional()
+  @IsString()
+  externalId?: string;
 }

@@ -70,7 +70,7 @@ export class ShopService implements OnApplicationBootstrap {
   }
 
   async create(shopDto: CreateShopDTO) {
-    const { title, imageId } = shopDto;
+    const { title, imageId, isExternal, externalId } = shopDto;
 
     if (imageId) {
       const fileToUpdate = await this.prismaService.image.findUnique({
@@ -93,14 +93,17 @@ export class ShopService implements OnApplicationBootstrap {
         data: {
           title,
           imageId,
-          isExternal: false,
+          isExternal: isExternal ?? false,
+          externalId: externalId ?? null,
         },
         include: shopInclude,
       }),
-      this.prismaService.image.update({
-        where: { id: imageId },
-        data: { isActive: true },
-      }),
+      imageId
+        ? this.prismaService.image.update({
+            where: { id: imageId },
+            data: { isActive: true },
+          })
+        : Promise.resolve(),
     ]);
 
     return shop;
@@ -175,6 +178,10 @@ export class ShopService implements OnApplicationBootstrap {
       where: { id: shopId },
       include: shopInclude,
     });
+
+    if (deletedShop.imageId) {
+      await this.updateImage(deletedShop, null);
+    }
 
     return deletedShop;
   }
